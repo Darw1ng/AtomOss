@@ -10,10 +10,10 @@ import {
     Share
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { Plus, FolderOpen } from 'lucide-react-native'; // Asegúrate de tener lucide instalado
+import { Plus, FolderOpen } from 'lucide-react-native';
 
 import NoteCard from '../components/NoteCard';
-import client from '../api/axiosClient';
+import notesService from '../api/notesService'; // <--- Importamos el servicio real
 import { theme } from '../theme/colors';
 
 export default function HomeScreen({ navigation }) {
@@ -24,34 +24,24 @@ export default function HomeScreen({ navigation }) {
     const fetchNotes = async () => {
         setLoading(true);
         try {
-            // BACKEND REAL:
-            // const response = await client.get('/notes');
-            // setNotes(response.data);
+            // Llamada REAL al backend
+            const data = await notesService.getAll();
 
-            // MOCK TEMPORAL (Vacío para probar tu diseño):
-            // Cambia esto a [] para ver el mensaje de "no tenemos notas"
-            // O pon datos para ver la cuadrícula
-            setTimeout(() => {
-                // Simulo vacío o datos aleatorios para probar
+            // Validamos que sea un array para evitar errores
+            if (Array.isArray(data)) {
+                setNotes(data);
+            } else {
                 setNotes([]);
-
-                // Descomenta esto para ver la cuadrícula llena:
-                /*
-                setNotes([
-                  { id: '1', title: 'Idea App', content: 'React Native con Expo' },
-                  { id: '2', title: 'Compras', content: 'Leche, Pan, Uranio' },
-                  { id: '3', title: 'Gym', content: 'Día de pierna' },
-                  { id: '4', title: 'Contraseña', content: '1234... no, espera' },
-                ]);
-                */
-            }, 500);
+            }
         } catch (error) {
-            console.error(error);
+            console.log("Error al cargar notas:", error);
+            // Opcional: Mostrar un mensaje sutil si falla
         } finally {
             setLoading(false);
         }
     };
 
+    // Se ejecuta cada vez que la pantalla recibe el foco (al volver de Detalle)
     useFocusEffect(
         useCallback(() => {
             fetchNotes();
@@ -84,14 +74,19 @@ export default function HomeScreen({ navigation }) {
                 message: `${note.title}\n\n${note.content}`,
             });
         } catch (error) {
-            alert(error.message);
+            // Error silencioso
         }
     };
 
     const deleteNote = async (id) => {
-        // Aquí iría tu llamada al backend: await client.delete(`/notes/${id}`);
-        // Simulamos borrado local:
-        setNotes(prev => prev.filter(n => n.id !== id));
+        try {
+            // 1. Borrar en servidor
+            await notesService.delete(id);
+            // 2. Actualizar lista visualmente (más rápido que recargar todo)
+            setNotes(prev => prev.filter(n => n.id !== id));
+        } catch (error) {
+            Alert.alert("Error", "No se pudo desintegrar la nota.");
+        }
     };
 
     // --- COMPONENTE DE ESTADO VACÍO (MEME) ---
@@ -118,28 +113,29 @@ export default function HomeScreen({ navigation }) {
 
     return (
         <View style={styles.container}>
-            {loading ? (
+            {loading && notes.length === 0 ? (
                 <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: 50 }} />
             ) : (
                 <FlatList
                     data={notes}
-                    keyExtractor={(item) => item.id.toString()}
-                    numColumns={3} // <-- LA MAGIA DE LA CUADRÍCULA
-                    columnWrapperStyle={styles.columnWrapper} // Estilo para las filas
+                    // Aseguramos que key sea string único
+                    keyExtractor={(item) => item.id ? item.id.toString() : Math.random().toString()}
+                    numColumns={3}
+                    columnWrapperStyle={styles.columnWrapper}
                     contentContainerStyle={notes.length === 0 ? styles.listEmpty : styles.listContent}
                     renderItem={({ item }) => (
                         <NoteCard
                             title={item.title}
                             content={item.content}
                             onPress={() => navigation.navigate('Detail', { note: item })}
-                            onLongPress={() => handleOptions(item)} // 3 puntos acción
+                            onLongPress={() => handleOptions(item)}
                         />
                     )}
-                    ListEmptyComponent={renderEmptyState}
+                    ListEmptyComponent={!loading && renderEmptyState}
                 />
             )}
 
-            {/* Botón flotante pequeño (solo visible si HAY notas) */}
+            {/* Botón flotante pequeño (solo visible si HAY notas para no tapar el grande) */}
             {notes.length > 0 && (
                 <TouchableOpacity
                     style={styles.fab}
@@ -155,18 +151,17 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: theme.background },
     listContent: { padding: 8, paddingTop: 20 },
-    listEmpty: { flexGrow: 1, justifyContent: 'center' }, // Centra el contenido vacío
-    columnWrapper: { justifyContent: 'flex-start' }, // Alineación de la cuadrícula
+    listEmpty: { flexGrow: 1, justifyContent: 'center' },
+    columnWrapper: { justifyContent: 'flex-start' },
 
-    // Estilos del Empty State
     emptyContainer: {
         alignItems: 'center',
         justifyContent: 'center',
         padding: 20,
-        marginTop: -50, // Pequeño ajuste visual
+        marginTop: -50,
     },
     iconBg: {
-        backgroundColor: 'rgba(148, 163, 184, 0.1)', // Gris translúcido
+        backgroundColor: 'rgba(148, 163, 184, 0.1)',
         padding: 20,
         borderRadius: 100,
         marginBottom: 20,
@@ -199,8 +194,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.5,
         shadowRadius: 10,
     },
-
-    // FAB pequeño original
     fab: {
         position: 'absolute',
         bottom: 30,
