@@ -1,97 +1,131 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const multer = require('multer'); // Importamos Multer
+const path = require('path');
+const fs = require('fs');
 
 const app = express();
-const PORT = 3000; // El puerto donde escuchará el servidor
+const PORT = 3000;
 
-// --- MIDDLEWARE (Configuración) ---
-app.use(cors()); // Permite que tu app móvil se conecte a este servidor
-app.use(bodyParser.json()); // Permite recibir datos en formato JSON
+// --- CONFIGURACIÓN DE ALMACENAMIENTO (Multer) ---
+// 1. Aseguramos que la carpeta 'uploads' exista
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir);
+    console.log('📂 Carpeta uploads creada');
+}
+
+// 2. Definimos dónde y cómo se guardan los archivos
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/'); // Carpeta destino
+    },
+    filename: (req, file, cb) => {
+        // Generamos un nombre único: timestamp + extensión original
+        // Ej: dibujo-169877665544.png
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = path.extname(file.originalname) || '.jpg';
+        cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+    }
+});
+
+const upload = multer({ storage: storage });
+
+// --- MIDDLEWARE ---
+app.use(cors());
+app.use(bodyParser.json());
+
+// 3. ¡IMPORTANTE! Hacemos pública la carpeta uploads
+// Esto permite acceder a las imágenes vía: http://tu-ip:3000/uploads/nombre-archivo.jpg
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // --- "BASE DE DATOS" SIMULADA ---
-// En un proyecto real, aquí te conectarías a MongoDB o MySQL
 let notesDB = [
     {
         id: '1',
         title: 'Bienvenido a AtomOss',
-        content: 'Esta es tu primera nota desde el servidor.',
+        content: 'Esta nota tiene texto y podría tener imágenes.',
         date: new Date().toISOString()
     }
 ];
 
-// --- RUTAS (ENDPOINTS) ---
-
-// 1. GET: Obtener todas las notas
+// --- RUTAS DE NOTAS (CRUD EXISTENTE) ---
 app.get('/api/notes', (req, res) => {
-    console.log('📡 GET /api/notes - Enviando notas al cliente');
+    // Para ver las imágenes en el celular, necesitamos la IP de tu máquina, no 'localhost'
+    // Aquí podrías procesar las URLs si fuera necesario, pero por ahora enviamos tal cual.
     res.json(notesDB);
 });
 
-// 2. POST: Crear una nueva nota
 app.post('/api/notes', (req, res) => {
     const { title, content } = req.body;
-
-    console.log('📥 POST /api/notes - Recibiendo:', title);
-
-    if (!title) {
-        return res.status(400).json({ error: 'El título es obligatorio' });
-    }
+    if (!title) return res.status(400).json({ error: 'El título es obligatorio' });
 
     const newNote = {
-        id: Date.now().toString(), // Generamos un ID único simple
+        id: Date.now().toString(),
         title,
         content: content || '',
         date: new Date().toISOString()
     };
 
-    notesDB.unshift(newNote); // Agregamos al principio de la lista
-    res.status(201).json(newNote); // Respondemos con la nota creada
+    notesDB.unshift(newNote);
+    res.status(201).json(newNote);
 });
 
-// 3. PUT: Actualizar una nota existente
 app.put('/api/notes/:id', (req, res) => {
     const { id } = req.params;
     const { title, content } = req.body;
-
-    console.log(`📝 PUT /api/notes/${id} - Actualizando nota`);
-
     const noteIndex = notesDB.findIndex(n => n.id === id);
 
-    if (noteIndex === -1) {
-        return res.status(404).json({ error: 'Nota no encontrada' });
-    }
+    if (noteIndex === -1) return res.status(404).json({ error: 'Nota no encontrada' });
 
-    // Actualizamos solo los campos que nos enviaron
     notesDB[noteIndex] = {
         ...notesDB[noteIndex],
         title: title || notesDB[noteIndex].title,
         content: content || notesDB[noteIndex].content,
-        date: new Date().toISOString() // Actualizamos la fecha de modificación
+        date: new Date().toISOString()
     };
 
     res.json(notesDB[noteIndex]);
 });
 
-// 4. DELETE: Eliminar una nota
 app.delete('/api/notes/:id', (req, res) => {
     const { id } = req.params;
-    console.log(`🗑️ DELETE /api/notes/${id} - Eliminando nota`);
-
-    const initialLength = notesDB.length;
     notesDB = notesDB.filter(n => n.id !== id);
-
-    if (notesDB.length === initialLength) {
-        return res.status(404).json({ error: 'Nota no encontrada' });
-    }
-
     res.json({ message: 'Nota eliminada con éxito' });
 });
 
+// --- NUEVA RUTA: SUBIDA DE IMÁGENES/DIBUJOS ---
+// El frontend enviará el archivo con el nombre de campo 'image'
+app.post('/api/upload', upload.single('image'), (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: 'No se subió ningún archivo' });
+        }
+
+        console.log('📸 Imagen recibida:', req.file.filename);
+
+        // Construimos la URL pública para que el frontend la use
+        // NOTA: Reemplaza 'localhost' por tu IP local si pruebas en celular físico (ej: 192.168.1.XX)
+        // Puedes obtenerla dinámicamente o dejarla fija en tu configuración.
+        const protocol = req.protocol;
+        const host = req.get('host'); // Esto obtiene 'localhost:3000' o tu IP:3000
+        const fileUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+
+        // Respondemos con la URL que se insertará en el Markdown
+        res.json({ url: fileUrl });
+
+    } catch (error) {
+        console.error("Error al subir imagen:", error);
+        res.status(500).json({ error: 'Error interno al procesar la imagen' });
+    }
+});
+
 // --- INICIAR SERVIDOR ---
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => { // Escuchar en 0.0.0.0 permite conexiones externas (celular)
     console.log(`
   AtomOss Backend corriendo!
-  Servidor escuchando en: http://localhost:${PORT}
+  Servidor escuchando en puerto: ${PORT}
+  Carpeta de uploads pública en: http://localhost:${PORT}/uploads
   `);
 });
