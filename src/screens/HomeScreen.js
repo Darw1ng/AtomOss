@@ -6,10 +6,9 @@ import {
     ActivityIndicator,
     Text,
     TouchableOpacity,
-    Alert
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { Plus, LayoutGrid, List as ListIcon, Menu } from 'lucide-react-native';
+import { Plus, LayoutGrid, List as ListIcon } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import NoteCard from '../components/NoteCard';
@@ -19,20 +18,10 @@ import { theme } from '../theme/colors';
 export default function HomeScreen({ navigation }) {
     const [notes, setNotes] = useState([]);
     const [loading, setLoading] = useState(false);
-
-    // ESTADO PARA LA VISTA: 'grid' o 'list'
     const [viewMode, setViewMode] = useState('grid');
 
-    // Configurar botones del Header
     useLayoutEffect(() => {
         navigation.setOptions({
-            // Botón Izquierdo: Abrir Menú Lateral
-            headerLeft: () => (
-                <TouchableOpacity onPress={() => navigation.openDrawer()} style={{ marginLeft: 15 }}>
-                    <Menu color={theme.primary} size={24} />
-                </TouchableOpacity>
-            ),
-            // Botón Derecho: Cambiar Vista
             headerRight: () => (
                 <TouchableOpacity
                     onPress={() => setViewMode(prev => prev === 'grid' ? 'list' : 'grid')}
@@ -44,7 +33,6 @@ export default function HomeScreen({ navigation }) {
                     }
                 </TouchableOpacity>
             ),
-            headerTitle: 'Mis Archivos'
         });
     }, [navigation, viewMode]);
 
@@ -64,7 +52,6 @@ export default function HomeScreen({ navigation }) {
         useCallback(() => { fetchNotes(); }, [])
     );
 
-    // --- RENDERIZADO DE ITEMS (ADAPTATIVO) ---
     const renderItem = ({ item }) => {
         if (viewMode === 'grid') {
             return (
@@ -75,7 +62,6 @@ export default function HomeScreen({ navigation }) {
                 />
             );
         } else {
-            // VISTA TIPO LISTA (Más compacta, tipo archivo)
             return (
                 <TouchableOpacity
                     style={styles.listItem}
@@ -106,10 +92,10 @@ export default function HomeScreen({ navigation }) {
                 <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: 50 }} />
             ) : (
                 <FlatList
-                    key={viewMode} // Forzar re-render al cambiar columnas
+                    key={viewMode}
                     data={notes}
                     keyExtractor={(item) => item.id?.toString() || Math.random().toString()}
-                    numColumns={viewMode === 'grid' ? 3 : 1} // CAMBIO DINÁMICO
+                    numColumns={viewMode === 'grid' ? 3 : 1}
                     columnWrapperStyle={viewMode === 'grid' ? styles.columnWrapper : null}
                     contentContainerStyle={styles.listContent}
                     renderItem={renderItem}
@@ -130,8 +116,6 @@ const styles = StyleSheet.create({
     container: { flex: 1 },
     listContent: { padding: 10, paddingTop: 20 },
     columnWrapper: { justifyContent: 'flex-start' },
-
-    // Estilos para modo LISTA
     listItem: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -145,7 +129,6 @@ const styles = StyleSheet.create({
     listTitle: { color: theme.text, fontWeight: 'bold', fontSize: 14 },
     listPreview: { color: theme.textDim, fontSize: 12 },
     dateText: { color: theme.textDim, fontSize: 10, marginLeft: 10 },
-
     fab: {
         position: 'absolute',
         bottom: 30, right: 30,
