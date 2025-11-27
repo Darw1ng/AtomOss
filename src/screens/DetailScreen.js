@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { View, TextInput, StyleSheet, TouchableOpacity, Text, Alert } from 'react-native';
 import { Save, Trash2 } from 'lucide-react-native';
-import client from '../api/axiosClient';
+// CAMBIO 1: Importamos notesService en lugar de 'client' directo para mantener consistencia
+import notesService from '../api/notesService';
 import { theme } from '../theme/colors';
 
 export default function DetailScreen({ route, navigation }) {
-    // Si viene una nota en los parámetros, es edición. Si no, es creación.
     const { note } = route.params;
 
     const [title, setTitle] = useState(note ? note.title : '');
@@ -18,17 +18,18 @@ export default function DetailScreen({ route, navigation }) {
         setSaving(true);
         try {
             if (note) {
-                // ACTUALIZAR (PUT)
-                // await client.put(`/notes/${note.id}`, { title, content });
-                console.log("Actualizando...", title);
+                // ACTUALIZAR (PUT) - Lógica de actualización
+                await notesService.update(note.id, { title, content });
+                console.log("Nota actualizada correctamente");
             } else {
-                // CREAR (POST)
-                // await client.post('/notes', { title, content });
-                console.log("Creando...", title);
+                // CREAR (POST) - Lógica de creación
+                await notesService.create({ title, content });
+                console.log("Nota creada correctamente");
             }
-            navigation.goBack(); // Volver al inicio
+            navigation.goBack(); // Volver al inicio y recargar la lista
         } catch (error) {
-            Alert.alert("Error", "Fallo en la fusión del núcleo");
+            console.error(error);
+            Alert.alert("Error", "Fallo en la fusión del núcleo (Error de red)");
         } finally {
             setSaving(false);
         }
@@ -41,8 +42,13 @@ export default function DetailScreen({ route, navigation }) {
                 text: "Eliminar",
                 style: "destructive",
                 onPress: async () => {
-                    // await client.delete(`/notes/${note.id}`);
-                    navigation.goBack();
+                    try {
+                        // ELIMINAR (DELETE)
+                        await notesService.delete(note.id);
+                        navigation.goBack();
+                    } catch (error) {
+                        Alert.alert("Error", "No se pudo eliminar la nota");
+                    }
                 }
             }
         ]);
@@ -87,6 +93,7 @@ export default function DetailScreen({ route, navigation }) {
     );
 }
 
+// ... (Los estilos se mantienen igual que en tu archivo original)
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: theme.background, padding: 20 },
     titleInput: {
