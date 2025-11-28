@@ -20,10 +20,15 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.AtomOss"
+      "package": "com.darwin.atomoss"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "3c7d0aa1-1812-469c-b150-c9f149ecd21b"
+      }
     }
   }
 }
