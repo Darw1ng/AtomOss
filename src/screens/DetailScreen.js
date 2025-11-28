@@ -10,11 +10,13 @@ import {
     Platform,
     ScrollView,
     Keyboard,
-    Modal // [Agregado] Importamos Modal
+    Modal,
+    Image, // Importante para renderizar imágenes
+    SafeAreaView // [Agregado] Para respetar el notch/isla dinámica
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import Markdown from 'react-native-markdown-display';
-import SignatureScreen from "react-native-signature-canvas"; // [Agregado] Librería de dibujo
+import SignatureScreen from "react-native-signature-canvas";
 
 import {
     Save,
@@ -46,12 +48,26 @@ export default function DetailScreen({ route, navigation }) {
     const [isPreview, setIsPreview] = useState(false);
     const [showToolbar, setShowToolbar] = useState(false);
     const [selection, setSelection] = useState({ start: 0, end: 0 });
-
-    // [Agregado] Estado para mostrar/ocultar el panel de dibujo
     const [isDrawing, setIsDrawing] = useState(false);
 
     const contentInputRef = useRef(null);
     const signatureRef = useRef(null);
+
+    // --- REGLAS PERSONALIZADAS PARA MARKDOWN (FIX REACT 19) ---
+    const markdownRules = {
+        image: (node, children, parent, styles) => {
+            return (
+                <Image
+                    key={node.key}
+                    style={styles.image}
+                    source={{ uri: node.attributes.src }}
+                    resizeMode="contain"
+                    accessible={true}
+                    accessibilityLabel={node.attributes.alt}
+                />
+            );
+        },
+    };
 
     // --- LÓGICA DE INSERCIÓN ---
     const insertMarkdown = (prefix, suffix = '') => {
@@ -104,11 +120,10 @@ export default function DetailScreen({ route, navigation }) {
         }
     };
 
-    // [Agregado] Manejo del guardado del dibujo
     const handleSignatureOK = (signature) => {
-        // signature es una cadena base64 de la imagen
+        // signature es base64
         insertMarkdown(`\n![Dibujo](${signature})\n`);
-        setIsDrawing(false); // Cerramos el modal
+        setIsDrawing(false);
         setShowToolbar(false);
     };
 
@@ -152,12 +167,48 @@ export default function DetailScreen({ route, navigation }) {
         ]);
     };
 
-    // Estilos personalizados para el componente de firma (CSS string)
+    // [CORREGIDO] Estilo CSS agresivo para limpiar el canvas y adaptarlo al móvil
     const webStyle = `
-        .m-signature-pad { box-shadow: none; border: none; } 
-        .m-signature-pad--body { border: none; }
-        .m-signature-pad--footer { bottom: 0px; position: absolute; width: 100%; }
-        body,html { width: 100%; height: 100%; }
+        body, html {
+            width: 100%; height: 100%; margin: 0; padding: 0;
+            background-color: #fff;
+        }
+        .m-signature-pad {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            margin: 0;
+            border: none;
+            box-shadow: none;
+        }
+        .m-signature-pad--body {
+            border: none;
+            bottom: 80px; /* Espacio para botones */
+            top: 0px;
+        }
+        .m-signature-pad--footer {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            height: 60px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background-color: transparent;
+        }
+        .m-signature-pad--footer .button {
+            background-color: ${theme.primary};
+            color: #FFF;
+            border-radius: 25px;
+            border: none;
+            padding: 10px 25px;
+            font-weight: bold;
+            font-family: system-ui;
+        }
+        .m-signature-pad--footer .button.clear {
+            background-color: ${theme.card};
+            color: ${theme.textDim};
+        }
     `;
 
     return (
@@ -179,7 +230,10 @@ export default function DetailScreen({ route, navigation }) {
 
                     {isPreview ? (
                         <ScrollView style={styles.previewContainer}>
-                            <Markdown style={markdownStyles}>
+                            <Markdown
+                                style={markdownStyles}
+                                rules={markdownRules}
+                            >
                                 {content || '*Nada por aquí...*'}
                             </Markdown>
                         </ScrollView>
@@ -198,14 +252,21 @@ export default function DetailScreen({ route, navigation }) {
                     )}
                 </View>
 
-                {/* --- MODAL DE DIBUJO [NUEVO] --- */}
-                <Modal visible={isDrawing} animationType="slide" onRequestClose={() => setIsDrawing(false)}>
-                    <View style={{ flex: 1, backgroundColor: theme.background }}>
+                {/* --- MODAL DE DIBUJO [CORREGIDO] --- */}
+                <Modal
+                    visible={isDrawing}
+                    animationType="slide"
+                    onRequestClose={() => setIsDrawing(false)}
+                    presentationStyle="fullScreen" // [Agregado] Fuerza pantalla completa nativa
+                >
+                    {/* SafeAreaView evita que la cabecera se meta bajo el notch/barra estado */}
+                    <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
+
                         {/* Cabecera del Modal */}
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 15, alignItems: 'center', borderBottomWidth: 1, borderBottomColor: theme.border }}>
-                            <Text style={{ color: theme.text, fontSize: 18, fontWeight: 'bold' }}>Nuevo Dibujo</Text>
-                            <TouchableOpacity onPress={() => setIsDrawing(false)}>
-                                <X color={theme.text} size={28} />
+                        <View style={styles.modalHeader}>
+                            <Text style={styles.modalTitle}>Lienzo</Text>
+                            <TouchableOpacity onPress={() => setIsDrawing(false)} style={styles.closeModalBtn}>
+                                <X color={theme.text} size={24} />
                             </TouchableOpacity>
                         </View>
 
@@ -215,15 +276,16 @@ export default function DetailScreen({ route, navigation }) {
                                 ref={signatureRef}
                                 onOK={handleSignatureOK}
                                 onEmpty={handleSignatureEmpty}
-                                descriptionText="Dibuja aquí"
+                                descriptionText="Firma o dibuja arriba"
                                 clearText="Borrar"
                                 confirmText="Insertar"
                                 webStyle={webStyle}
                                 autoClear={true}
                                 imageType="image/png"
+                                trimWhitespace={true}
                             />
                         </View>
-                    </View>
+                    </SafeAreaView>
                 </Modal>
 
                 {/* --- BARRA DE HERRAMIENTAS --- */}
@@ -251,12 +313,9 @@ export default function DetailScreen({ route, navigation }) {
                             <TouchableOpacity style={styles.toolBtn} onPress={pickImage}>
                                 <ImageIcon size={20} color={theme.primary} />
                             </TouchableOpacity>
-
-                            {/* [CORREGIDO] Botón para abrir el panel de dibujo */}
                             <TouchableOpacity style={styles.toolBtn} onPress={() => setIsDrawing(true)}>
                                 <PenTool size={20} color={theme.primary} />
                             </TouchableOpacity>
-
                         </ScrollView>
                         <TouchableOpacity style={styles.closeBarBtn} onPress={() => setShowToolbar(false)}>
                             <X size={16} color={theme.textDim} />
@@ -325,7 +384,7 @@ const markdownStyles = StyleSheet.create({
     fence: { backgroundColor: '#1e1e1e', color: '#f8f8f2', padding: 10, borderRadius: 8 },
     list_item: { color: theme.textDim, marginVertical: 2 },
     blockquote: { backgroundColor: '#22452E', borderLeftColor: theme.primary, borderLeftWidth: 4, paddingHorizontal: 10, paddingVertical: 4 },
-    image: { width: '100%', height: 200, borderRadius: 8, resizeMode: 'contain' } // [Cambio] contain para ver dibujos mejor
+    image: { width: '100%', height: 200, borderRadius: 8 }
 });
 
 const styles = StyleSheet.create({
@@ -425,5 +484,25 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(239, 68, 68, 0.1)',
         borderRadius: 50,
         marginRight: 5
+    },
+    // [AGREGADO] Estilos para el Modal de dibujo
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingHorizontal: 20,
+        paddingVertical: 15,
+        alignItems: 'center',
+        backgroundColor: theme.background,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.border
+    },
+    modalTitle: {
+        color: theme.text,
+        fontSize: 18,
+        fontWeight: 'bold',
+        letterSpacing: 1
+    },
+    closeModalBtn: {
+        padding: 5
     }
 });
