@@ -11,9 +11,10 @@ import {
     ScrollView,
     Keyboard,
     Modal,
-    Image, // Importante para renderizar imágenes
-    SafeAreaView // [Agregado] Para respetar el notch/isla dinámica
+    Image,
+    SafeAreaView
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context'; // [IMPORTANTE] Nuevo hook
 import * as ImagePicker from 'expo-image-picker';
 import Markdown from 'react-native-markdown-display';
 import SignatureScreen from "react-native-signature-canvas";
@@ -39,12 +40,12 @@ import { theme } from '../theme/colors';
 
 export default function DetailScreen({ route, navigation }) {
     const { note } = route.params;
+    const insets = useSafeAreaInsets(); // [IMPORTANTE] Obtenemos las medidas seguras del dispositivo
 
     const [title, setTitle] = useState(note ? note.title : '');
     const [content, setContent] = useState(note ? note.content : '');
     const [saving, setSaving] = useState(false);
 
-    // Estados de la interfaz
     const [isPreview, setIsPreview] = useState(false);
     const [showToolbar, setShowToolbar] = useState(false);
     const [selection, setSelection] = useState({ start: 0, end: 0 });
@@ -53,7 +54,6 @@ export default function DetailScreen({ route, navigation }) {
     const contentInputRef = useRef(null);
     const signatureRef = useRef(null);
 
-    // --- REGLAS PERSONALIZADAS PARA MARKDOWN (FIX REACT 19) ---
     const markdownRules = {
         image: (node, children, parent, styles) => {
             return (
@@ -69,7 +69,6 @@ export default function DetailScreen({ route, navigation }) {
         },
     };
 
-    // --- LÓGICA DE INSERCIÓN ---
     const insertMarkdown = (prefix, suffix = '') => {
         const { start, end } = selection;
         const textBefore = content.substring(0, start);
@@ -121,7 +120,6 @@ export default function DetailScreen({ route, navigation }) {
     };
 
     const handleSignatureOK = (signature) => {
-        // signature es base64
         insertMarkdown(`\n![Dibujo](${signature})\n`);
         setIsDrawing(false);
         setShowToolbar(false);
@@ -167,7 +165,6 @@ export default function DetailScreen({ route, navigation }) {
         ]);
     };
 
-    // [CORREGIDO] Estilo CSS agresivo para limpiar el canvas y adaptarlo al móvil
     const webStyle = `
         body, html {
             width: 100%; height: 100%; margin: 0; padding: 0;
@@ -183,7 +180,7 @@ export default function DetailScreen({ route, navigation }) {
         }
         .m-signature-pad--body {
             border: none;
-            bottom: 80px; /* Espacio para botones */
+            bottom: 80px;
             top: 0px;
         }
         .m-signature-pad--footer {
@@ -212,10 +209,11 @@ export default function DetailScreen({ route, navigation }) {
     `;
 
     return (
+        // [CAMBIO] Usamos 'height' en Android para que el footer suba correctamente
         <KeyboardAvoidingView
-            style={{ flex: 1 }}
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+            style={{ flex: 1, backgroundColor: theme.background }}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 20} // Ajuste fino para el offset
         >
             <View style={styles.container}>
 
@@ -230,10 +228,7 @@ export default function DetailScreen({ route, navigation }) {
 
                     {isPreview ? (
                         <ScrollView style={styles.previewContainer}>
-                            <Markdown
-                                style={markdownStyles}
-                                rules={markdownRules}
-                            >
+                            <Markdown style={markdownStyles} rules={markdownRules}>
                                 {content || '*Nada por aquí...*'}
                             </Markdown>
                         </ScrollView>
@@ -252,25 +247,19 @@ export default function DetailScreen({ route, navigation }) {
                     )}
                 </View>
 
-                {/* --- MODAL DE DIBUJO [CORREGIDO] --- */}
                 <Modal
                     visible={isDrawing}
                     animationType="slide"
                     onRequestClose={() => setIsDrawing(false)}
-                    presentationStyle="fullScreen" // [Agregado] Fuerza pantalla completa nativa
+                    presentationStyle="fullScreen"
                 >
-                    {/* SafeAreaView evita que la cabecera se meta bajo el notch/barra estado */}
                     <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
-
-                        {/* Cabecera del Modal */}
                         <View style={styles.modalHeader}>
                             <Text style={styles.modalTitle}>Lienzo</Text>
                             <TouchableOpacity onPress={() => setIsDrawing(false)} style={styles.closeModalBtn}>
                                 <X color={theme.text} size={24} />
                             </TouchableOpacity>
                         </View>
-
-                        {/* Área del Canvas */}
                         <View style={{ flex: 1, backgroundColor: 'white' }}>
                             <SignatureScreen
                                 ref={signatureRef}
@@ -288,9 +277,8 @@ export default function DetailScreen({ route, navigation }) {
                     </SafeAreaView>
                 </Modal>
 
-                {/* --- BARRA DE HERRAMIENTAS --- */}
                 {showToolbar && !isPreview && (
-                    <View style={styles.toolbarContainer}>
+                    <View style={[styles.toolbarContainer, { bottom: 80 + (Platform.OS === 'android' ? 0 : 10) }]}>
                         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.toolbarScroll}>
                             <TouchableOpacity style={styles.toolBtn} onPress={() => insertMarkdown('**', '**')}>
                                 <Bold size={20} color={theme.text} />
@@ -323,8 +311,11 @@ export default function DetailScreen({ route, navigation }) {
                     </View>
                 )}
 
-                {/* Footer Inferior */}
-                <View style={styles.footer}>
+                {/* [CAMBIO IMPORTANTE]
+                   El footer ahora usa insets.bottom para el padding.
+                   Esto hace que suba si hay barra de navegación o teclado.
+                */}
+                <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 15) }]}>
                     <View style={styles.leftTools}>
                         {!isPreview && (
                             <TouchableOpacity
@@ -388,7 +379,7 @@ const markdownStyles = StyleSheet.create({
 });
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: theme.background },
+    container: { flex: 1 },
     inputContainer: { flex: 1, padding: 20 },
     titleInput: {
         fontSize: 24,
@@ -404,15 +395,16 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: theme.textDim,
         lineHeight: 24,
-        paddingBottom: 80,
+        // Quitamos el paddingBottom excesivo, el flex y el KeyboardAvoidingView se encargarán
+        paddingBottom: 20,
     },
     previewContainer: {
         flex: 1,
-        marginBottom: 80,
+        marginBottom: 10,
     },
     toolbarContainer: {
         position: 'absolute',
-        bottom: 80,
+        // Ya no es fijo bottom 80, se ajustará relativo al contenedor padre
         left: 20,
         right: 20,
         backgroundColor: theme.card,
@@ -444,8 +436,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: 15,
-        paddingBottom: Platform.OS === 'ios' ? 30 : 15,
+        paddingHorizontal: 15,
+        paddingTop: 15,
+        // El paddingBottom ahora se controla dinámicamente en el JSX
         backgroundColor: theme.background,
         borderTopWidth: 1,
         borderTopColor: theme.card
@@ -485,7 +478,6 @@ const styles = StyleSheet.create({
         borderRadius: 50,
         marginRight: 5
     },
-    // [AGREGADO] Estilos para el Modal de dibujo
     modalHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',

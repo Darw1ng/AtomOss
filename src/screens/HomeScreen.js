@@ -12,6 +12,7 @@ import {
     ScrollView
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+// Importaciones unificadas de iconos
 import {
     Plus,
     LayoutGrid,
@@ -21,7 +22,8 @@ import {
     Newspaper,
     Bell,
     X,
-    ChevronRight
+    ChevronRight,
+    Network // Icono para el mapa mental
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -39,7 +41,7 @@ export default function HomeScreen({ navigation }) {
 
     useLayoutEffect(() => {
         navigation.setOptions({
-            // Quitamos el botón viejo y ponemos el Icono de la App
+            // Icono de la App como botón de menú
             headerRight: () => (
                 <TouchableOpacity
                     onPress={() => setMenuVisible(true)}
@@ -70,7 +72,7 @@ export default function HomeScreen({ navigation }) {
         useCallback(() => { fetchNotes(); }, [])
     );
 
-    // Renderizado de ítems (sin cambios en la lógica)
+    // Renderizado de ítems
     const renderItem = ({ item }) => {
         if (viewMode === 'grid') {
             return (
@@ -101,7 +103,7 @@ export default function HomeScreen({ navigation }) {
         }
     };
 
-    // Componente para una opción del menú
+    // Componente reutilizable para opciones del menú
     const MenuItem = ({ icon: Icon, label, onPress, badge }) => (
         <TouchableOpacity style={styles.menuItem} onPress={onPress}>
             <View style={styles.menuItemLeft}>
@@ -152,13 +154,10 @@ export default function HomeScreen({ navigation }) {
                 visible={menuVisible}
                 onRequestClose={() => setMenuVisible(false)}
             >
-                {/* Fondo oscuro semitransparente */}
                 <Pressable style={styles.modalOverlay} onPress={() => setMenuVisible(false)}>
 
-                    {/* Contenedor del Menú */}
                     <Pressable style={styles.menuContainer} onPress={() => {}}>
 
-                        {/* Cabecera del Menú */}
                         <View style={styles.menuHeader}>
                             <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                 <Image
@@ -173,6 +172,16 @@ export default function HomeScreen({ navigation }) {
                         </View>
 
                         <ScrollView contentContainerStyle={{paddingVertical: 10}}>
+                            {/* Lienzo Mental (Nueva opción) */}
+                            <MenuItem
+                                icon={Network}
+                                label="Lienzo Mental"
+                                onPress={() => { setMenuVisible(false); navigation.navigate('Canvas'); }}
+                            />
+
+                            <View style={styles.divider} />
+
+                            {/* Opciones Estándar */}
                             <MenuItem
                                 icon={Settings}
                                 label="Configuración"
@@ -195,10 +204,9 @@ export default function HomeScreen({ navigation }) {
                                 onPress={() => { setMenuVisible(false); navigation.navigate('Notifications'); }}
                             />
 
-                            {/* Separador */}
                             <View style={styles.divider} />
 
-                            {/* Opción para cambiar vista (movida aquí) */}
+                            {/* Cambio de Vista */}
                             <MenuItem
                                 icon={viewMode === 'grid' ? ListIcon : LayoutGrid}
                                 label={viewMode === 'grid' ? "Cambiar a Lista" : "Cambiar a Cuadrícula"}
@@ -207,7 +215,6 @@ export default function HomeScreen({ navigation }) {
                                     setMenuVisible(false);
                                 }}
                             />
-
                         </ScrollView>
 
                     </Pressable>
@@ -248,25 +255,24 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 4.65,
     },
-
-    // --- ESTILOS DEL MODAL DE MENÚ ---
+    // Estilos del Menú
     modalOverlay: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.7)', // Fondo oscuro detrás del menú
-        justifyContent: 'flex-start', // Alineado arriba
-        alignItems: 'flex-end', // Alineado a la derecha (debajo del icono)
-        paddingTop: 50, // Espacio para la barra de estado
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        justifyContent: 'flex-start',
+        alignItems: 'flex-end',
+        paddingTop: 50,
         paddingRight: 10
     },
     menuContainer: {
         width: 250,
-        backgroundColor: theme.card, // Color verde oscuro de tus tarjetas
+        backgroundColor: theme.card,
         borderRadius: 12,
         borderWidth: 1,
         borderColor: theme.border,
         elevation: 10,
         overflow: 'hidden',
-        marginTop: 10 // Un poco de margen desde el header
+        marginTop: 10
     },
     menuHeader: {
         flexDirection: 'row',
