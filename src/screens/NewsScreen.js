@@ -5,10 +5,10 @@ import { theme } from '../theme/colors';
 const NEWS = [
     {
         id: '1',
-        title: 'Version 0.0.11 Actualizacion de contenido',
+        title: 'Version 0.0.13 Actualizacion de contenido',
         date: '28 Nov 2025',
         image: require('../../assets/cuki.jpeg'),
-        content: 'Esto es la version Alpha, unicamente ciertos individuos selecciondos tendran acceso a esta version.      ' + '-Felicidades eres especial'
+        content: 'Esto es la version Alpha, unicamente ciertos individuos seleccionados tendran acceso a esta version.      ' + '-Felicidades eres especial'
     },
     {
         id: '2',

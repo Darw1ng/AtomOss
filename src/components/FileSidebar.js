@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { ChevronRight, ChevronDown, Folder, FileText, Settings, Database } from 'lucide-react-native';
-import { theme } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext'; // <--- Usar el Hook
 
-// Datos simulados de estructura (luego vendrán del backend)
 const MOCK_STRUCTURE = [
     { id: '1', name: 'Personal Backup', type: 'folder', children: [
             { id: '11', name: 'Assets', type: 'folder', children: [] },
@@ -19,6 +18,7 @@ const MOCK_STRUCTURE = [
 ];
 
 const FileItem = ({ item, level = 0, onPress }) => {
+    const { theme } = useTheme(); // Obtener tema
     const [expanded, setExpanded] = useState(false);
     const isFolder = item.type === 'folder';
 
@@ -36,7 +36,6 @@ const FileItem = ({ item, level = 0, onPress }) => {
                 style={[styles.itemRow, { paddingLeft: 20 + (level * 15) }]}
                 onPress={handlePress}
             >
-                {/* Icono de Flecha (solo carpetas) */}
                 <View style={{ width: 20 }}>
                     {isFolder && (
                         expanded ?
@@ -45,25 +44,23 @@ const FileItem = ({ item, level = 0, onPress }) => {
                     )}
                 </View>
 
-                {/* Icono del Tipo */}
                 <View style={{ marginRight: 8 }}>
                     {item.type === 'folder' && <Folder size={16} color={theme.secondary} />}
                     {item.type === 'note' && <FileText size={16} color={theme.textDim} />}
                     {item.type === 'canvas' && <Database size={16} color={theme.primary} />}
                 </View>
 
-                <Text style={[styles.itemText, item.type === 'canvas' && {color: theme.primary}]}>
+                <Text style={[styles.itemText, { color: item.type === 'canvas' ? theme.primary : theme.textDim }]}>
                     {item.name}
                 </Text>
 
                 {item.type === 'canvas' && (
-                    <View style={styles.tagBadge}>
-                        <Text style={styles.tagText}>CANVAS</Text>
+                    <View style={[styles.tagBadge, { backgroundColor: theme.border }]}>
+                        <Text style={[styles.tagText, { color: theme.primary }]}>CANVAS</Text>
                     </View>
                 )}
             </TouchableOpacity>
 
-            {/* Renderizado recursivo de hijos */}
             {isFolder && expanded && item.children && (
                 <View>
                     {item.children.map(child => (
@@ -76,10 +73,13 @@ const FileItem = ({ item, level = 0, onPress }) => {
 };
 
 export default function FileSidebar({ navigation }) {
+    const { theme } = useTheme(); // Obtener tema
+
     return (
-        <View style={styles.container}>
-            <View style={styles.header}>
-                <Text style={styles.headerTitle}>Explorador</Text>
+        // Fondo dinámico
+        <View style={[styles.container, { backgroundColor: theme.background }]}>
+            <View style={[styles.header, { borderBottomColor: theme.border }]}>
+                <Text style={[styles.headerTitle, { color: theme.text }]}>Explorador</Text>
                 <Settings size={18} color={theme.textDim} />
             </View>
 
@@ -89,7 +89,6 @@ export default function FileSidebar({ navigation }) {
                         key={item.id}
                         item={item}
                         onPress={(note) => {
-                            // Navegar a la nota o filtrar la lista principal
                             navigation.navigate('Home');
                             console.log("Filtrar por:", note.name);
                         }}
@@ -101,31 +100,12 @@ export default function FileSidebar({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#0d1117', paddingTop: 50 }, // Fondo muy oscuro (tipo VSCode)
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: 20,
-        paddingBottom: 15,
-        borderBottomWidth: 1,
-        borderBottomColor: theme.border
-    },
-    headerTitle: { color: theme.text, fontWeight: 'bold', fontSize: 14, textTransform: 'uppercase', letterSpacing: 1 },
+    container: { flex: 1, paddingTop: 50 },
+    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingBottom: 15, borderBottomWidth: 1 },
+    headerTitle: { fontWeight: 'bold', fontSize: 14, textTransform: 'uppercase', letterSpacing: 1 },
     scroll: { flex: 1, marginTop: 10 },
-    itemRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 6,
-        paddingRight: 10,
-    },
-    itemText: { color: theme.textDim, fontSize: 14 },
-    tagBadge: {
-        backgroundColor: theme.border,
-        paddingHorizontal: 4,
-        borderRadius: 4,
-        marginLeft: 'auto',
-        transform: [{scale: 0.8}]
-    },
-    tagText: { color: theme.primary, fontSize: 10, fontWeight: 'bold' }
+    itemRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 6, paddingRight: 10 },
+    itemText: { fontSize: 14 },
+    tagBadge: { paddingHorizontal: 4, borderRadius: 4, marginLeft: 'auto', transform: [{ scale: 0.8 }] },
+    tagText: { fontSize: 10, fontWeight: 'bold' }
 });
