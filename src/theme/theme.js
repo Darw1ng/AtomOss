@@ -1,5 +1,3 @@
-// src/theme/theme.js
-
 export const PALETTES = {
     green: { primary: '#44895C', secondary: '#336745' },
     blue: { primary: '#3b82f6', secondary: '#1e40af' },

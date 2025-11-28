@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, Image } from 'react-native';
-import { theme } from '../theme/colors';
+import { useTheme } from '../context/ThemeContext'; // <--- CAMBIO 1: Importar Hook
 
 const NEWS = [
     {
@@ -20,25 +20,26 @@ const NEWS = [
 ];
 
 export default function NewsScreen() {
+    const { theme } = useTheme(); // <--- CAMBIO 2: Usar Hook
+
+    // CAMBIO 3: Mover estilos dentro del componente o usar estilos dinámicos en línea
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: theme.background }]}>
             <FlatList
                 data={NEWS}
                 keyExtractor={item => item.id}
                 contentContainerStyle={{ padding: 15 }}
                 renderItem={({ item }) => (
-                    <View style={styles.card}>
-                        {/* Componente de Imagen Local */}
+                    <View style={[styles.card, { backgroundColor: theme.card }]}>
                         <Image
                             source={item.image}
                             style={styles.newsImage}
                             resizeMode="cover"
                         />
-
                         <View style={styles.cardBody}>
-                            <Text style={styles.date}>{item.date}</Text>
-                            <Text style={styles.title}>{item.title}</Text>
-                            <Text style={styles.content}>{item.content}</Text>
+                            <Text style={[styles.date, { color: theme.primary }]}>{item.date}</Text>
+                            <Text style={[styles.title, { color: theme.text }]}>{item.title}</Text>
+                            <Text style={[styles.content, { color: theme.textDim }]}>{item.content}</Text>
                         </View>
                     </View>
                 )}
@@ -48,21 +49,19 @@ export default function NewsScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: theme.background },
+    container: { flex: 1 },
     card: {
-        backgroundColor: theme.card,
         borderRadius: 12,
         marginBottom: 20,
         overflow: 'hidden',
         elevation: 3
     },
-    // Estilo para que la imagen ocupe el ancho de la tarjeta
     newsImage: {
         width: '100%',
-        height: 150, // Puedes ajustar la altura de la imagen aquí
+        height: 150,
     },
     cardBody: { padding: 15 },
-    date: { color: theme.primary, fontSize: 12, fontWeight: 'bold', marginBottom: 5 },
-    title: { color: theme.text, fontSize: 18, fontWeight: 'bold', marginBottom: 8 },
-    content: { color: theme.textDim, fontSize: 14, lineHeight: 20 }
+    date: { fontSize: 12, fontWeight: 'bold', marginBottom: 5 },
+    title: { fontSize: 18, fontWeight: 'bold', marginBottom: 8 },
+    content: { fontSize: 14, lineHeight: 20 }
 });
