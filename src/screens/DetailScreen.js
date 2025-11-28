@@ -9,10 +9,13 @@ import {
     KeyboardAvoidingView,
     Platform,
     ScrollView,
-    Keyboard
+    Keyboard,
+    Modal // [Agregado] Importamos Modal
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import Markdown from 'react-native-markdown-display'; // Importamos el renderizador
+import Markdown from 'react-native-markdown-display';
+import SignatureScreen from "react-native-signature-canvas"; // [Agregado] Librería de dibujo
+
 import {
     Save,
     Trash2,
@@ -24,10 +27,10 @@ import {
     Quote,
     Image as ImageIcon,
     PenTool,
-    Wrench, // Icono para herramientas
-    Eye,    // Icono para ver
-    EyeOff, // Icono para editar
-    X       // Icono para cerrar menú
+    Wrench,
+    Eye,
+    EyeOff,
+    X
 } from 'lucide-react-native';
 import notesService from '../api/notesService';
 import { theme } from '../theme/colors';
@@ -39,19 +42,20 @@ export default function DetailScreen({ route, navigation }) {
     const [content, setContent] = useState(note ? note.content : '');
     const [saving, setSaving] = useState(false);
 
-    // Estados nuevos
-    const [isPreview, setIsPreview] = useState(false); // Modo vista previa
-    const [showToolbar, setShowToolbar] = useState(false); // Mostrar/Ocultar barra
+    // Estados de la interfaz
+    const [isPreview, setIsPreview] = useState(false);
+    const [showToolbar, setShowToolbar] = useState(false);
     const [selection, setSelection] = useState({ start: 0, end: 0 });
 
+    // [Agregado] Estado para mostrar/ocultar el panel de dibujo
+    const [isDrawing, setIsDrawing] = useState(false);
+
     const contentInputRef = useRef(null);
+    const signatureRef = useRef(null);
 
-    // --- CORRECCIÓN DE LA LÓGICA DE INSERCIÓN ---
+    // --- LÓGICA DE INSERCIÓN ---
     const insertMarkdown = (prefix, suffix = '') => {
-        // Obtenemos inicio y fin de la selección actual
         const { start, end } = selection;
-
-        // Partimos el texto actual en 3 partes
         const textBefore = content.substring(0, start);
         const textSelected = content.substring(start, end);
         const textAfter = content.substring(end);
@@ -59,21 +63,15 @@ export default function DetailScreen({ route, navigation }) {
         let newText = '';
         let newCursorPos = 0;
 
-        // Lógica específica para bloques que requieren nueva línea (como listas o títulos)
         const isBlockElement = prefix === '- ' || prefix === '# ' || prefix === '> ';
 
         if (isBlockElement) {
-            // Si es un bloque, aseguramos que esté en una línea nueva si no estamos al inicio
             const needsNewLine = start > 0 && content[start - 1] !== '\n';
             const extraBreak = needsNewLine ? '\n' : '';
-
             newText = `${textBefore}${extraBreak}${prefix}${textSelected}${suffix}${textAfter}`;
-            // Mover el cursor al final de la inserción
             newCursorPos = start + extraBreak.length + prefix.length + textSelected.length + suffix.length;
         } else {
-            // Inserción inline (negrita, cursiva, código)
             newText = `${textBefore}${prefix}${textSelected}${suffix}${textAfter}`;
-            // Si hay texto seleccionado, envolvemos. Si no, ponemos el cursor en medio.
             if (textSelected.length > 0) {
                 newCursorPos = start + prefix.length + textSelected.length + suffix.length;
             } else {
@@ -82,12 +80,8 @@ export default function DetailScreen({ route, navigation }) {
         }
 
         setContent(newText);
-
-        // Enfocamos y actualizamos la posición del cursor (necesario en RN)
         setTimeout(() => {
             contentInputRef.current?.focus();
-            // Nota: En RN cambiar la selección programáticamente a veces requiere un pequeño hack o re-render,
-            // pero al escribir el texto el cursor suele irse al final.
         }, 50);
     };
 
@@ -97,7 +91,6 @@ export default function DetailScreen({ route, navigation }) {
             Alert.alert('Permiso denegado', 'Necesitamos acceso a tu galería.');
             return;
         }
-
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: false,
@@ -106,10 +99,21 @@ export default function DetailScreen({ route, navigation }) {
 
         if (!result.canceled) {
             const imageUri = result.assets[0].uri;
-            // Insertar imagen en la posición del cursor
             insertMarkdown('![Imagen](' + imageUri + ')', '');
-            setShowToolbar(false); // Ocultar barra tras insertar
+            setShowToolbar(false);
         }
+    };
+
+    // [Agregado] Manejo del guardado del dibujo
+    const handleSignatureOK = (signature) => {
+        // signature es una cadena base64 de la imagen
+        insertMarkdown(`\n![Dibujo](${signature})\n`);
+        setIsDrawing(false); // Cerramos el modal
+        setShowToolbar(false);
+    };
+
+    const handleSignatureEmpty = () => {
+        Alert.alert("Lienzo vacío", "Por favor dibuja algo antes de guardar.");
     };
 
     const handleSave = async () => {
@@ -148,6 +152,14 @@ export default function DetailScreen({ route, navigation }) {
         ]);
     };
 
+    // Estilos personalizados para el componente de firma (CSS string)
+    const webStyle = `
+        .m-signature-pad { box-shadow: none; border: none; } 
+        .m-signature-pad--body { border: none; }
+        .m-signature-pad--footer { bottom: 0px; position: absolute; width: 100%; }
+        body,html { width: 100%; height: 100%; }
+    `;
+
     return (
         <KeyboardAvoidingView
             style={{ flex: 1 }}
@@ -156,7 +168,6 @@ export default function DetailScreen({ route, navigation }) {
         >
             <View style={styles.container}>
 
-                {/* Cabecera de Inputs */}
                 <View style={styles.inputContainer}>
                     <TextInput
                         style={styles.titleInput}
@@ -166,7 +177,6 @@ export default function DetailScreen({ route, navigation }) {
                         onChangeText={setTitle}
                     />
 
-                    {/* VISTA PREVIA vs EDITOR */}
                     {isPreview ? (
                         <ScrollView style={styles.previewContainer}>
                             <Markdown style={markdownStyles}>
@@ -183,15 +193,40 @@ export default function DetailScreen({ route, navigation }) {
                             onChangeText={setContent}
                             multiline
                             textAlignVertical="top"
-                            // IMPORTANTE: Rastreamos la selección
                             onSelectionChange={(event) => setSelection(event.nativeEvent.selection)}
                         />
                     )}
                 </View>
 
-                {/* --- BARRA DE HERRAMIENTAS FLOTANTE --- */}
+                {/* --- MODAL DE DIBUJO [NUEVO] --- */}
+                <Modal visible={isDrawing} animationType="slide" onRequestClose={() => setIsDrawing(false)}>
+                    <View style={{ flex: 1, backgroundColor: theme.background }}>
+                        {/* Cabecera del Modal */}
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 15, alignItems: 'center', borderBottomWidth: 1, borderBottomColor: theme.border }}>
+                            <Text style={{ color: theme.text, fontSize: 18, fontWeight: 'bold' }}>Nuevo Dibujo</Text>
+                            <TouchableOpacity onPress={() => setIsDrawing(false)}>
+                                <X color={theme.text} size={28} />
+                            </TouchableOpacity>
+                        </View>
 
-                {/* 1. Barra Expandida (Horizontal scroll) */}
+                        {/* Área del Canvas */}
+                        <View style={{ flex: 1, backgroundColor: 'white' }}>
+                            <SignatureScreen
+                                ref={signatureRef}
+                                onOK={handleSignatureOK}
+                                onEmpty={handleSignatureEmpty}
+                                descriptionText="Dibuja aquí"
+                                clearText="Borrar"
+                                confirmText="Insertar"
+                                webStyle={webStyle}
+                                autoClear={true}
+                                imageType="image/png"
+                            />
+                        </View>
+                    </View>
+                </Modal>
+
+                {/* --- BARRA DE HERRAMIENTAS --- */}
                 {showToolbar && !isPreview && (
                     <View style={styles.toolbarContainer}>
                         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.toolbarScroll}>
@@ -216,21 +251,21 @@ export default function DetailScreen({ route, navigation }) {
                             <TouchableOpacity style={styles.toolBtn} onPress={pickImage}>
                                 <ImageIcon size={20} color={theme.primary} />
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.toolBtn} onPress={() => insertMarkdown('```\n', '\n```')}>
+
+                            {/* [CORREGIDO] Botón para abrir el panel de dibujo */}
+                            <TouchableOpacity style={styles.toolBtn} onPress={() => setIsDrawing(true)}>
                                 <PenTool size={20} color={theme.primary} />
                             </TouchableOpacity>
+
                         </ScrollView>
-                        {/* Botón X pequeña para cerrar barra */}
                         <TouchableOpacity style={styles.closeBarBtn} onPress={() => setShowToolbar(false)}>
                             <X size={16} color={theme.textDim} />
                         </TouchableOpacity>
                     </View>
                 )}
 
-                {/* 2. Área de Botones Flotantes Inferiores */}
+                {/* Footer Inferior */}
                 <View style={styles.footer}>
-
-                    {/* Botón Izquierda: Herramientas */}
                     <View style={styles.leftTools}>
                         {!isPreview && (
                             <TouchableOpacity
@@ -244,12 +279,11 @@ export default function DetailScreen({ route, navigation }) {
                             </TouchableOpacity>
                         )}
 
-                        {/* Botón Ojo: Toggle Preview */}
                         <TouchableOpacity
                             style={[styles.roundBtn, { marginLeft: 10 }]}
                             onPress={() => {
                                 setIsPreview(!isPreview);
-                                setShowToolbar(false); // Cerrar herramientas al ver preview
+                                setShowToolbar(false);
                                 Keyboard.dismiss();
                             }}
                         >
@@ -261,7 +295,6 @@ export default function DetailScreen({ route, navigation }) {
                         </TouchableOpacity>
                     </View>
 
-                    {/* Botones Derecha: Guardar/Borrar */}
                     <View style={styles.rightTools}>
                         {note && (
                             <TouchableOpacity style={styles.deleteBtn} onPress={handleDelete}>
@@ -284,7 +317,6 @@ export default function DetailScreen({ route, navigation }) {
     );
 }
 
-// Estilos de Markdown Display (Personalización básica)
 const markdownStyles = StyleSheet.create({
     body: { color: theme.textDim, fontSize: 16 },
     heading1: { color: theme.primary, fontWeight: 'bold', marginVertical: 10 },
@@ -293,7 +325,7 @@ const markdownStyles = StyleSheet.create({
     fence: { backgroundColor: '#1e1e1e', color: '#f8f8f2', padding: 10, borderRadius: 8 },
     list_item: { color: theme.textDim, marginVertical: 2 },
     blockquote: { backgroundColor: '#22452E', borderLeftColor: theme.primary, borderLeftWidth: 4, paddingHorizontal: 10, paddingVertical: 4 },
-    image: { width: '100%', height: 200, borderRadius: 8, resizeMode: 'cover' }
+    image: { width: '100%', height: 200, borderRadius: 8, resizeMode: 'contain' } // [Cambio] contain para ver dibujos mejor
 });
 
 const styles = StyleSheet.create({
@@ -313,17 +345,15 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: theme.textDim,
         lineHeight: 24,
-        paddingBottom: 80, // Espacio para que el texto no quede tapado por la barra
+        paddingBottom: 80,
     },
     previewContainer: {
         flex: 1,
         marginBottom: 80,
     },
-
-    // Barra de herramientas expandible (aparece sobre el teclado/footer)
     toolbarContainer: {
         position: 'absolute',
-        bottom: 80, // Justo encima del footer
+        bottom: 80,
         left: 20,
         right: 20,
         backgroundColor: theme.card,
@@ -351,8 +381,6 @@ const styles = StyleSheet.create({
         borderLeftColor: theme.border,
         marginLeft: 5
     },
-
-    // Footer inferior fijo
     footer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
