@@ -11,32 +11,42 @@ import {
     Pressable,
     ScrollView
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // <--- Importante
 import { useFocusEffect } from '@react-navigation/native';
 import {
     Plus, LayoutGrid, List as ListIcon, Settings, Calendar,
     Newspaper, Bell, X, ChevronRight, Network
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useTheme } from '../context/ThemeContext'; // Importar Hook
+import { useTheme } from '../context/ThemeContext';
 import NoteCard from '../components/NoteCard';
 import notesService from '../api/notesService';
+import calendarService from '../api/calendarService'; // <--- Importar servicio de calendario
+
+// Debe ser la misma clave que usas en NotificationsScreen
+const READ_NOTIFICATIONS_KEY = '@atomoss_notifications_read_v1';
 
 export default function HomeScreen({ navigation }) {
-    const { theme } = useTheme(); // Usar Hook
+    const { theme } = useTheme();
     const [notes, setNotes] = useState([]);
     const [loading, setLoading] = useState(false);
     const [viewMode, setViewMode] = useState('grid');
     const [menuVisible, setMenuVisible] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0); // <--- Estado para el contador
 
     useLayoutEffect(() => {
         navigation.setOptions({
             headerRight: () => (
                 <TouchableOpacity onPress={() => setMenuVisible(true)} style={{ marginRight: 15 }}>
                     <Image source={require('../../assets/icon.png')} style={{ width: 32, height: 32, borderRadius: 8 }} />
+                    {/* Indicador rojo en el avatar si hay notificaciones */}
+                    {unreadCount > 0 && (
+                        <View style={styles.avatarBadge} />
+                    )}
                 </TouchableOpacity>
             ),
         });
-    }, [navigation]);
+    }, [navigation, unreadCount]); // Se actualiza si cambia el contador
 
     const fetchNotes = async () => {
         setLoading(true);
@@ -47,7 +57,35 @@ export default function HomeScreen({ navigation }) {
         finally { setLoading(false); }
     };
 
-    useFocusEffect(useCallback(() => { fetchNotes(); }, []));
+    // Calcular notificaciones no leídas
+    const fetchNotificationsCount = async () => {
+        try {
+            // 1. Obtener IDs leídos
+            const storedReadIds = await AsyncStorage.getItem(READ_NOTIFICATIONS_KEY);
+            const readIds = storedReadIds ? JSON.parse(storedReadIds) : [];
+
+            // 2. Obtener eventos (igual que en NotificationsScreen)
+            const events = await calendarService.getAll();
+
+            // 3. Definir IDs totales (Sistema + Eventos)
+            // Nota: Si cambias las notificaciones del sistema en NotificationsScreen, actualiza aquí también
+            const systemIds = ['sys_1'];
+            const eventIds = events.map(e => e.id);
+            const allIds = [...systemIds, ...eventIds];
+
+            // 4. Contar cuántos NO están en leídos
+            const count = allIds.filter(id => !readIds.includes(id)).length;
+            setUnreadCount(count);
+
+        } catch (error) {
+            console.error("Error al contar notificaciones:", error);
+        }
+    };
+
+    useFocusEffect(useCallback(() => {
+        fetchNotes();
+        fetchNotificationsCount(); // <--- Llamamos al conteo cada vez que se enfoca la pantalla
+    }, []));
 
     const renderItem = ({ item }) => {
         if (viewMode === 'grid') {
@@ -78,14 +116,18 @@ export default function HomeScreen({ navigation }) {
                 <Text style={[styles.menuItemText, { color: theme.text }]}>{label}</Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                {badge && <View style={[styles.badge, { backgroundColor: theme.danger }]}><Text style={styles.badgeText}>{badge}</Text></View>}
+                {/* Solo mostramos el badge si tiene un valor mayor a 0 */}
+                {badge > 0 && (
+                    <View style={[styles.badge, { backgroundColor: theme.danger }]}>
+                        <Text style={styles.badgeText}>{badge}</Text>
+                    </View>
+                )}
                 <ChevronRight size={16} color={theme.textDim} />
             </View>
         </TouchableOpacity>
     );
 
     return (
-        // Gradiente dinámico según el tema
         <LinearGradient
             colors={[theme.card, theme.background, theme.black]}
             style={styles.container}
@@ -129,7 +171,15 @@ export default function HomeScreen({ navigation }) {
                             <MenuItem icon={Settings} label="Configuración" onPress={() => { setMenuVisible(false); navigation.navigate('Settings'); }} />
                             <MenuItem icon={Calendar} label="Calendario" onPress={() => { setMenuVisible(false); navigation.navigate('Calendar'); }} />
                             <MenuItem icon={Newspaper} label="Noticias" onPress={() => { setMenuVisible(false); navigation.navigate('News'); }} />
-                            <MenuItem icon={Bell} label="Notificaciones" badge="3" onPress={() => { setMenuVisible(false); navigation.navigate('Notifications'); }} />
+
+                            {/* Aquí pasamos la variable unreadCount en lugar del "3" estático */}
+                            <MenuItem
+                                icon={Bell}
+                                label="Notificaciones"
+                                badge={unreadCount}
+                                onPress={() => { setMenuVisible(false); navigation.navigate('Notifications'); }}
+                            />
+
                             <View style={[styles.divider, { backgroundColor: theme.border }]} />
                             <MenuItem icon={viewMode === 'grid' ? ListIcon : LayoutGrid} label={viewMode === 'grid' ? "Cambiar a Lista" : "Cambiar a Cuadrícula"} onPress={() => { setViewMode(prev => prev === 'grid' ? 'list' : 'grid'); setMenuVisible(false); }} />
                         </ScrollView>
@@ -160,5 +210,6 @@ const styles = StyleSheet.create({
     menuItemText: { fontSize: 14 },
     divider: { height: 1, marginVertical: 5, marginHorizontal: 15 },
     badge: { borderRadius: 10, paddingHorizontal: 6, paddingVertical: 1, marginRight: 8 },
-    badgeText: { color: 'white', fontSize: 10, fontWeight: 'bold' }
+    badgeText: { color: 'white', fontSize: 10, fontWeight: 'bold' },
+    avatarBadge: { position: 'absolute', top: -2, right: -2, width: 10, height: 10, borderRadius: 5, backgroundColor: '#ef4444', borderWidth: 1, borderColor: '#fff' }
 });
