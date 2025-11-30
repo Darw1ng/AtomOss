@@ -23,7 +23,7 @@ import {
 } from 'lucide-react-native';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
-const CALENDAR_WIDTH = SCREEN_WIDTH; // Usamos todo el ancho para facilitar el paging
+const CALENDAR_WIDTH = SCREEN_WIDTH;
 
 const WEEK_DAYS = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
 const MONTHS = [
@@ -38,9 +38,9 @@ export default function CalendarScreen() {
     const now = new Date();
     const [events, setEvents] = useState([]);
     const [currentYear, setCurrentYear] = useState(now.getFullYear());
-    const [activeIndex, setActiveIndex] = useState(now.getMonth()); // Iniciar en mes actual
+    const [activeIndex, setActiveIndex] = useState(now.getMonth());
 
-    const flatListRef = useRef(null); // Referencia para controlar el carrusel
+    const flatListRef = useRef(null);
 
     // Modal y Formulario
     const [modalVisible, setModalVisible] = useState(false);
@@ -56,8 +56,6 @@ export default function CalendarScreen() {
     const [endTime, setEndTime] = useState('12:00 p.m.');
 
     // --- EFECTOS ---
-
-    // Scrollear al mes actual al cargar (con un pequeño delay para asegurar renderizado)
     useEffect(() => {
         setTimeout(() => {
             if(flatListRef.current) {
@@ -74,7 +72,6 @@ export default function CalendarScreen() {
     useFocusEffect(useCallback(() => { loadEvents(); }, []));
 
     // --- LÓGICA DE CALENDARIO ---
-
     const getDaysInMonth = (monthIndex, year) => {
         const date = new Date(year, monthIndex, 1);
         const days = [];
@@ -86,7 +83,6 @@ export default function CalendarScreen() {
         return days;
     };
 
-    // Controlar cambio de mes al deslizar
     const handleScroll = (event) => {
         const scrollPosition = event.nativeEvent.contentOffset.x;
         const index = Math.round(scrollPosition / SCREEN_WIDTH);
@@ -95,7 +91,6 @@ export default function CalendarScreen() {
         }
     };
 
-    // Controlar cambio de mes con flechas
     const changeMonth = (direction) => {
         let newIndex = activeIndex + direction;
         let newYear = currentYear;
@@ -115,7 +110,6 @@ export default function CalendarScreen() {
 
     const handleDayPress = (dateObj) => {
         if (!dateObj) return;
-        // Ajustar zona horaria local para evitar problemas de día anterior
         const offsetDate = new Date(dateObj.getTime() - (dateObj.getTimezoneOffset() * 60000));
         const dateKey = offsetDate.toISOString().split('T')[0];
 
@@ -155,7 +149,6 @@ export default function CalendarScreen() {
     };
 
     // --- COMPONENTES ---
-
     const MonthCalendar = ({ monthIndex, year }) => {
         const days = getDaysInMonth(monthIndex, year);
 
@@ -172,7 +165,6 @@ export default function CalendarScreen() {
                         {days.map((dateObj, index) => {
                             if (!dateObj) return <View key={index} style={styles.dayCell} />;
 
-                            // Ajuste simple para key de fecha local
                             const tempDate = new Date(dateObj.getTime() - (dateObj.getTimezoneOffset() * 60000));
                             const dateKey = tempDate.toISOString().split('T')[0];
 
@@ -229,7 +221,7 @@ export default function CalendarScreen() {
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
 
-            {/* Header Dinámico: Mes + Año */}
+            {/* Header Dinámico */}
             <View style={[styles.headerContainer, { borderBottomColor: theme.border }]}>
                 <TouchableOpacity onPress={() => changeMonth(-1)} hitSlop={15}>
                     <ChevronLeft color={theme.text} size={28} />
@@ -256,7 +248,7 @@ export default function CalendarScreen() {
                     pagingEnabled
                     showsHorizontalScrollIndicator={false}
                     keyExtractor={(item) => item}
-                    onMomentumScrollEnd={handleScroll} // Detectar fin de deslizamiento
+                    onMomentumScrollEnd={handleScroll}
                     getItemLayout={(data, index) => (
                         {length: SCREEN_WIDTH, offset: SCREEN_WIDTH * index, index}
                     )}
@@ -273,7 +265,6 @@ export default function CalendarScreen() {
                 </Text>
 
                 <FlatList
-                    // Filtrar eventos solo del mes visible para no saturar
                     data={events.filter(e => {
                         if(!e.dateKey) return false;
                         const [y, m] = e.dateKey.split('-');
@@ -316,7 +307,7 @@ export default function CalendarScreen() {
                 />
             </View>
 
-            {/* Modal (Igual que antes) */}
+            {/* --- MODAL --- */}
             <Modal
                 animationType="slide"
                 transparent={true}
@@ -394,10 +385,22 @@ const styles = StyleSheet.create({
     dateBadgeMonth: { fontSize: 10, fontWeight: 'bold' },
 
     modalOverlay: { flex: 1 },
-    modalContainer: { flex: 1, paddingTop: 10 },
-    modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 15, borderBottomWidth: 1 },
+    modalContainer: {
+        flex: 1,
+        paddingTop: Platform.OS === 'ios' ? 60 : 20 // <--- AQUÍ SE APLICÓ EL CAMBIO
+    },
+    modalHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingVertical: 15,
+        borderBottomWidth: 1
+    },
     modalTitle: { fontSize: 17, fontWeight: 'bold' },
-    headerBtn: { padding: 5 },
+    headerBtn: {
+        padding: 10 // Área de toque más cómoda
+    },
     modalBody: { flex: 1, padding: 20 },
     inputGroup: { borderRadius: 10, marginBottom: 25, overflow: 'hidden' },
     input: { fontSize: 16, padding: 15, borderBottomWidth: 1, borderColor: '#333' },
