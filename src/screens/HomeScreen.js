@@ -11,7 +11,7 @@ import {
     Pressable,
     ScrollView
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // <--- Importante
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import {
     Plus, LayoutGrid, List as ListIcon, Settings, Calendar,
@@ -21,9 +21,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
 import NoteCard from '../components/NoteCard';
 import notesService from '../api/notesService';
-import calendarService from '../api/calendarService'; // <--- Importar servicio de calendario
+import calendarService from '../api/calendarService';
 
-// Debe ser la misma clave que usas en NotificationsScreen
 const READ_NOTIFICATIONS_KEY = '@atomoss_notifications_read_v1';
 
 export default function HomeScreen({ navigation }) {
@@ -32,21 +31,27 @@ export default function HomeScreen({ navigation }) {
     const [loading, setLoading] = useState(false);
     const [viewMode, setViewMode] = useState('grid');
     const [menuVisible, setMenuVisible] = useState(false);
-    const [unreadCount, setUnreadCount] = useState(0); // <--- Estado para el contador
+    const [unreadCount, setUnreadCount] = useState(0);
 
     useLayoutEffect(() => {
         navigation.setOptions({
             headerRight: () => (
                 <TouchableOpacity onPress={() => setMenuVisible(true)} style={{ marginRight: 15 }}>
-                    <Image source={require('../../assets/icon.png')} style={{ width: 32, height: 32, borderRadius: 8 }} />
-                    {/* Indicador rojo en el avatar si hay notificaciones */}
+                    {/* CORRECCIÓN 1: Logo ajustado con contain y sin borderRadius que lo corte */}
+                    <Image
+                        source={require('../../assets/icon.png')}
+                        style={{ width: 35, height: 35 }}
+                        resizeMode="contain"
+                    />
+
+                    {/* CORRECCIÓN 2: El punto rojo ahora usa el estilo actualizado (ver styles abajo) */}
                     {unreadCount > 0 && (
                         <View style={styles.avatarBadge} />
                     )}
                 </TouchableOpacity>
             ),
         });
-    }, [navigation, unreadCount]); // Se actualiza si cambia el contador
+    }, [navigation, unreadCount]);
 
     const fetchNotes = async () => {
         setLoading(true);
@@ -57,23 +62,16 @@ export default function HomeScreen({ navigation }) {
         finally { setLoading(false); }
     };
 
-    // Calcular notificaciones no leídas
     const fetchNotificationsCount = async () => {
         try {
-            // 1. Obtener IDs leídos
             const storedReadIds = await AsyncStorage.getItem(READ_NOTIFICATIONS_KEY);
             const readIds = storedReadIds ? JSON.parse(storedReadIds) : [];
-
-            // 2. Obtener eventos (igual que en NotificationsScreen)
             const events = await calendarService.getAll();
 
-            // 3. Definir IDs totales (Sistema + Eventos)
-            // Nota: Si cambias las notificaciones del sistema en NotificationsScreen, actualiza aquí también
             const systemIds = ['sys_1'];
             const eventIds = events.map(e => e.id);
             const allIds = [...systemIds, ...eventIds];
 
-            // 4. Contar cuántos NO están en leídos
             const count = allIds.filter(id => !readIds.includes(id)).length;
             setUnreadCount(count);
 
@@ -84,7 +82,7 @@ export default function HomeScreen({ navigation }) {
 
     useFocusEffect(useCallback(() => {
         fetchNotes();
-        fetchNotificationsCount(); // <--- Llamamos al conteo cada vez que se enfoca la pantalla
+        fetchNotificationsCount();
     }, []));
 
     const renderItem = ({ item }) => {
@@ -116,7 +114,6 @@ export default function HomeScreen({ navigation }) {
                 <Text style={[styles.menuItemText, { color: theme.text }]}>{label}</Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                {/* Solo mostramos el badge si tiene un valor mayor a 0 */}
                 {badge > 0 && (
                     <View style={[styles.badge, { backgroundColor: theme.danger }]}>
                         <Text style={styles.badgeText}>{badge}</Text>
@@ -172,7 +169,6 @@ export default function HomeScreen({ navigation }) {
                             <MenuItem icon={Calendar} label="Calendario" onPress={() => { setMenuVisible(false); navigation.navigate('Calendar'); }} />
                             <MenuItem icon={Newspaper} label="Noticias" onPress={() => { setMenuVisible(false); navigation.navigate('News'); }} />
 
-                            {/* Aquí pasamos la variable unreadCount en lugar del "3" estático */}
                             <MenuItem
                                 icon={Bell}
                                 label="Notificaciones"
@@ -211,5 +207,18 @@ const styles = StyleSheet.create({
     divider: { height: 1, marginVertical: 5, marginHorizontal: 15 },
     badge: { borderRadius: 10, paddingHorizontal: 6, paddingVertical: 1, marginRight: 8 },
     badgeText: { color: 'white', fontSize: 10, fontWeight: 'bold' },
-    avatarBadge: { position: 'absolute', top: -2, right: -2, width: 10, height: 10, borderRadius: 5, backgroundColor: '#ef4444', borderWidth: 1, borderColor: '#fff' }
+
+    // CORRECCIÓN 3: Ajustamos top y right a 0 para que no se salga del contenedor
+    avatarBadge: {
+        position: 'absolute',
+        top: 0, // Antes era -2
+        right: 0, // Antes era -2
+        width: 10,
+        height: 10,
+        borderRadius: 5,
+        backgroundColor: '#ef4444',
+        borderWidth: 1,
+        borderColor: '#fff',
+        zIndex: 10
+    }
 });
