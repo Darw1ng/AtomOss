@@ -5,12 +5,13 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system'; // <--- IMPORTANTE: Importamos FileSystem
 import Markdown from 'react-native-markdown-display';
 import SignatureScreen from "react-native-signature-canvas";
 import {
     Save, Trash2, Bold, Heading, List, Image as ImageIcon,
     Wrench, Eye, EyeOff, X, Italic, Quote, Code, PenTool,
-    Check, Eraser, RotateCcw, Palette // Iconos nuevos
+    Check, Eraser, RotateCcw
 } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
 import notesService from '../api/notesService';
@@ -81,6 +82,27 @@ export default function DetailScreen({ route, navigation }) {
 
     // --- FUNCIONES DEL CANVAS ---
 
+    // Función auxiliar para guardar el dibujo en el almacenamiento del dispositivo
+    const saveDrawingToStorage = async (base64Data) => {
+        try {
+            // El canvas devuelve "data:image/png;base64,iVBOR...", necesitamos quitar la cabecera
+            const base64Code = base64Data.split('data:image/png;base64,')[1];
+
+            // Generar un nombre único para el archivo
+            const filename = FileSystem.documentDirectory + `drawing_${Date.now()}.png`;
+
+            // Escribir el archivo en el sistema
+            await FileSystem.writeAsStringAsync(filename, base64Code, {
+                encoding: FileSystem.EncodingType.Base64,
+            });
+
+            return filename; // Retornamos la ruta local (ej: file:///...)
+        } catch (error) {
+            console.error("Error al guardar dibujo localmente:", error);
+            return null;
+        }
+    };
+
     // CSS para "arreglar" el lienzo: quita bordes, sombras y footer predeterminado
     const webStyle = `
         .m-signature-pad {
@@ -110,8 +132,16 @@ export default function DetailScreen({ route, navigation }) {
         signatureRef.current?.readSignature(); // Esto dispara onOK
     };
 
-    const handleOnOK = (signature) => {
-        insertMarkdown(`\n![Dibujo](${signature})\n`);
+    // Modificamos handleOnOK para usar la nueva función de guardado
+    const handleOnOK = async (signature) => {
+        // Guardamos el archivo físicamente en lugar de usar el string Base64 gigante
+        const localUri = await saveDrawingToStorage(signature);
+
+        if (localUri) {
+            insertMarkdown(`\n![Dibujo](${localUri})\n`);
+        } else {
+            console.log("Error al guardar el dibujo");
+        }
         setIsDrawing(false);
     };
 
@@ -122,7 +152,7 @@ export default function DetailScreen({ route, navigation }) {
             keyboardVerticalOffset={100}
         >
             <View style={styles.mainContainer}>
-                {/* 1. ÁREA DEL EDITOR (Igual que antes) */}
+                {/* 1. ÁREA DEL EDITOR */}
                 <View style={styles.editorArea}>
                     <TextInput
                         style={[styles.titleInput, { color: theme.text, borderBottomColor: theme.border }]}
@@ -149,7 +179,7 @@ export default function DetailScreen({ route, navigation }) {
                     )}
                 </View>
 
-                {/* 2. BARRA DE HERRAMIENTAS (Igual que antes) */}
+                {/* 2. BARRA DE HERRAMIENTAS */}
                 {showToolbar && !isPreview && (
                     <View style={[styles.toolbarContainer, { backgroundColor: theme.card, borderColor: theme.border }]}>
                         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.toolbarScroll} keyboardShouldPersistTaps="always">
@@ -172,7 +202,7 @@ export default function DetailScreen({ route, navigation }) {
                     </View>
                 )}
 
-                {/* 3. FOOTER (Igual que antes) */}
+                {/* 3. FOOTER */}
                 <View style={[styles.footer, { backgroundColor: theme.background, borderTopColor: theme.card, paddingBottom: Math.max(insets.bottom, 10) }]}>
                     <View style={styles.leftTools}>
                         <TouchableOpacity style={[styles.roundBtn, { backgroundColor: theme.card, borderColor: theme.border }, showToolbar && { backgroundColor: theme.primary, borderColor: theme.primary }]} onPress={() => setShowToolbar(!showToolbar)}>
@@ -211,7 +241,6 @@ export default function DetailScreen({ route, navigation }) {
                             onOK={handleOnOK}
                             webStyle={webStyle}
                             penColor={penColor}
-                            // Opcional: ajustar grosor mínimo y máximo si quieres "más grande" por defecto
                             minWidth={3}
                             maxWidth={5}
                         />
