@@ -10,15 +10,16 @@ import {
     Modal,
     Pressable,
     ScrollView,
-    Share, // <--- Importamos Share
-    Alert  // <--- Importamos Alert para confirmaciones
+    Share,
+    Alert,
+    Dimensions // Importamos Dimensions
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import {
     Plus, LayoutGrid, List as ListIcon, Settings, Calendar,
     Newspaper, Bell, X, ChevronRight, Network,
-    Share2, Trash2, MoreVertical // <--- Nuevos iconos
+    Share2, Trash2, MoreVertical
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
@@ -27,6 +28,7 @@ import notesService from '../api/notesService';
 import calendarService from '../api/calendarService';
 
 const READ_NOTIFICATIONS_KEY = '@atomoss_notifications_read_v1';
+const { width } = Dimensions.get('window'); // Ancho de pantalla
 
 export default function HomeScreen({ navigation }) {
     const { theme } = useTheme();
@@ -36,9 +38,10 @@ export default function HomeScreen({ navigation }) {
     const [menuVisible, setMenuVisible] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
 
-    // --- ESTADOS PARA EL MENÚ DE OPCIONES DE NOTA ---
+    // --- ESTADOS PARA EL MENÚ FLOTANTE ---
     const [optionsVisible, setOptionsVisible] = useState(false);
     const [selectedNote, setSelectedNote] = useState(null);
+    const [menuPosition, setMenuPosition] = useState({ top: 0, right: 10 }); // Posición dinámica
 
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -88,7 +91,18 @@ export default function HomeScreen({ navigation }) {
 
     // --- FUNCIONES DE ACCIÓN ---
 
-    const handleOptionsPress = (note) => {
+    const handleOptionsPress = (note, event) => {
+        // Obtenemos la posición Y del toque
+        const { pageY } = event.nativeEvent;
+
+        // Ajustamos la posición:
+        // top: donde tocaste.
+        // right: un margen fijo de 15px desde la derecha (ya que el botón siempre está a la derecha).
+        setMenuPosition({
+            top: pageY + 10,  // Un poco más abajo del dedo
+            right: 15
+        });
+
         setSelectedNote(note);
         setOptionsVisible(true);
     };
@@ -120,7 +134,7 @@ export default function HomeScreen({ navigation }) {
                     onPress: async () => {
                         await notesService.delete(selectedNote.id);
                         setOptionsVisible(false);
-                        fetchNotes(); // Recargar lista
+                        fetchNotes();
                     }
                 }
             ]
@@ -134,8 +148,8 @@ export default function HomeScreen({ navigation }) {
                     title={item.title}
                     content={item.content}
                     onPress={() => navigation.navigate('Detail', { note: item })}
-                    // Conectamos los 3 puntitos (tu componente NoteCard usa onLongPress para el botón de menú)
-                    onLongPress={() => handleOptionsPress(item)}
+                    // Pasamos el evento 'e' para capturar coordenadas
+                    onLongPress={(e) => handleOptionsPress(item, e)}
                 />
             );
         } else {
@@ -143,8 +157,8 @@ export default function HomeScreen({ navigation }) {
                 <TouchableOpacity
                     style={[styles.listItem, { borderBottomColor: theme.border }]}
                     onPress={() => navigation.navigate('Detail', { note: item })}
-                    // También agregamos long press a la lista para consistencia
-                    onLongPress={() => handleOptionsPress(item)}
+                    // Pasamos evento en la lista también
+                    onLongPress={(e) => handleOptionsPress(item, e)}
                 >
                     <View style={styles.iconBox}><ListIcon size={18} color={theme.textDim} /></View>
                     <View style={{ flex: 1 }}>
@@ -153,8 +167,9 @@ export default function HomeScreen({ navigation }) {
                             {item.content ? item.content.replace(/[#*`]/g, '') : 'Sin contenido'}
                         </Text>
                     </View>
-                    {/* Botón de 3 puntos también en modo lista */}
-                    <TouchableOpacity onPress={() => handleOptionsPress(item)} style={{padding: 5}}>
+
+                    {/* Botón de 3 puntos en modo lista */}
+                    <TouchableOpacity onPress={(e) => handleOptionsPress(item, e)} style={{padding: 5}}>
                         <MoreVertical size={16} color={theme.textDim} />
                     </TouchableOpacity>
                 </TouchableOpacity>
@@ -206,7 +221,7 @@ export default function HomeScreen({ navigation }) {
                 <Plus color="#fff" size={30} />
             </TouchableOpacity>
 
-            {/* --- MODAL MENÚ PRINCIPAL --- */}
+            {/* MODAL MENÚ PRINCIPAL */}
             <Modal animationType="fade" transparent={true} visible={menuVisible} onRequestClose={() => setMenuVisible(false)}>
                 <Pressable style={styles.modalOverlay} onPress={() => setMenuVisible(false)}>
                     <Pressable style={[styles.menuContainer, { backgroundColor: theme.card, borderColor: theme.border }]} onPress={() => { }}>
@@ -232,31 +247,35 @@ export default function HomeScreen({ navigation }) {
                 </Pressable>
             </Modal>
 
-            {/* --- MODAL OPCIONES DE NOTA (3 PUNTITOS) --- */}
-            <Modal animationType="slide" transparent={true} visible={optionsVisible} onRequestClose={() => setOptionsVisible(false)}>
-                <Pressable style={styles.centerOverlay} onPress={() => setOptionsVisible(false)}>
-                    <View style={[styles.optionsModal, { backgroundColor: theme.card, borderColor: theme.border }]}>
-                        <Text style={[styles.optionsTitle, { color: theme.text }]} numberOfLines={1}>
-                            {selectedNote?.title || 'Opciones'}
-                        </Text>
+            {/* --- MODAL OPCIONES FLOTANTE --- */}
+            <Modal
+                transparent={true}
+                visible={optionsVisible}
+                onRequestClose={() => setOptionsVisible(false)}
+                animationType="fade" // Fade se ve mejor para popups
+            >
+                <Pressable style={styles.fullScreenOverlay} onPress={() => setOptionsVisible(false)}>
 
-                        <TouchableOpacity style={styles.optionItem} onPress={handleShare}>
-                            <Share2 size={20} color={theme.primary} />
-                            <Text style={[styles.optionText, { color: theme.text }]}>Compartir</Text>
+                    {/* El contenedor ahora usa posición absoluta dinámica */}
+                    <View style={[
+                        styles.popupMenu,
+                        {
+                            backgroundColor: theme.card,
+                            borderColor: theme.border,
+                            top: menuPosition.top,
+                            right: menuPosition.right
+                        }
+                    ]}>
+                        <TouchableOpacity style={styles.popupItem} onPress={handleShare}>
+                            <Share2 size={18} color={theme.primary} />
+                            <Text style={[styles.popupText, { color: theme.text }]}>Compartir</Text>
                         </TouchableOpacity>
 
-                        <View style={[styles.divider, { backgroundColor: theme.border }]} />
+                        <View style={[styles.popupDivider, { backgroundColor: theme.border }]} />
 
-                        <TouchableOpacity style={styles.optionItem} onPress={handleDelete}>
-                            <Trash2 size={20} color={theme.danger} />
-                            <Text style={[styles.optionText, { color: theme.danger }]}>Eliminar</Text>
-                        </TouchableOpacity>
-
-                        <View style={[styles.divider, { backgroundColor: theme.border }]} />
-
-                        <TouchableOpacity style={styles.optionItem} onPress={() => setOptionsVisible(false)}>
-                            <X size={20} color={theme.textDim} />
-                            <Text style={[styles.optionText, { color: theme.textDim }]}>Cancelar</Text>
+                        <TouchableOpacity style={styles.popupItem} onPress={handleDelete}>
+                            <Trash2 size={18} color={theme.danger} />
+                            <Text style={[styles.popupText, { color: theme.danger }]}>Eliminar</Text>
                         </TouchableOpacity>
                     </View>
                 </Pressable>
@@ -299,10 +318,38 @@ const styles = StyleSheet.create({
         borderColor: '#fff',
         zIndex: 10
     },
-    // Nuevos estilos para el modal de opciones (centrado)
-    centerOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center', padding: 20 },
-    optionsModal: { width: '80%', borderRadius: 15, borderWidth: 1, padding: 5, elevation: 10, overflow: 'hidden' },
-    optionsTitle: { textAlign: 'center', padding: 15, fontSize: 16, fontWeight: 'bold', opacity: 0.8 },
-    optionItem: { flexDirection: 'row', alignItems: 'center', padding: 15, justifyContent: 'center' },
-    optionText: { fontSize: 16, fontWeight: 'bold', marginLeft: 10 }
+
+    // --- ESTILOS NUEVOS PARA EL POPUP ---
+    fullScreenOverlay: {
+        flex: 1,
+        backgroundColor: 'transparent', // Transparente para que parezca flotante
+    },
+    popupMenu: {
+        position: 'absolute', // Clave para que flote
+        width: 160,
+        borderRadius: 12,
+        borderWidth: 1,
+        elevation: 8, // Sombra en Android
+        shadowColor: '#000', // Sombra en iOS
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        paddingVertical: 5
+    },
+    popupItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 12,
+        paddingHorizontal: 15
+    },
+    popupText: {
+        fontSize: 14,
+        fontWeight: '500',
+        marginLeft: 12
+    },
+    popupDivider: {
+        height: 1,
+        marginHorizontal: 10,
+        opacity: 0.5
+    }
 });
