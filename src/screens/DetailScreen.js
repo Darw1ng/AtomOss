@@ -5,7 +5,8 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system'; // <--- IMPORTANTE: Importamos FileSystem
+// --- CORRECCIÓN EXPO 54: Usamos el import legacy para tener writeAsStringAsync ---
+import * as FileSystem from 'expo-file-system/legacy';
 import Markdown from 'react-native-markdown-display';
 import SignatureScreen from "react-native-signature-canvas";
 import {
@@ -82,28 +83,26 @@ export default function DetailScreen({ route, navigation }) {
 
     // --- FUNCIONES DEL CANVAS ---
 
-    // Función auxiliar para guardar el dibujo en el almacenamiento del dispositivo
     const saveDrawingToStorage = async (base64Data) => {
         try {
-            // El canvas devuelve "data:image/png;base64,iVBOR...", necesitamos quitar la cabecera
+            // El canvas devuelve "data:image/png;base64,iVBOR...", quitamos cabecera
             const base64Code = base64Data.split('data:image/png;base64,')[1];
 
-            // Generar un nombre único para el archivo
+            // Generar nombre único
             const filename = FileSystem.documentDirectory + `drawing_${Date.now()}.png`;
 
-            // Escribir el archivo en el sistema
+            // Escribir archivo usando API Legacy con string 'base64' directo
             await FileSystem.writeAsStringAsync(filename, base64Code, {
-                encoding: FileSystem.EncodingType.Base64,
+                encoding: 'base64',
             });
 
-            return filename; // Retornamos la ruta local (ej: file:///...)
+            return filename;
         } catch (error) {
             console.error("Error al guardar dibujo localmente:", error);
             return null;
         }
     };
 
-    // CSS para "arreglar" el lienzo: quita bordes, sombras y footer predeterminado
     const webStyle = `
         .m-signature-pad {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -120,7 +119,7 @@ export default function DetailScreen({ route, navigation }) {
     };
 
     const handleEraser = () => {
-        setPenColor('#FFFFFF'); // Truco: Pintar de blanco es borrar
+        setPenColor('#FFFFFF');
         signatureRef.current?.changePenColor('#FFFFFF');
     };
 
@@ -129,12 +128,10 @@ export default function DetailScreen({ route, navigation }) {
     };
 
     const handleConfirmDrawing = () => {
-        signatureRef.current?.readSignature(); // Esto dispara onOK
+        signatureRef.current?.readSignature();
     };
 
-    // Modificamos handleOnOK para usar la nueva función de guardado
     const handleOnOK = async (signature) => {
-        // Guardamos el archivo físicamente en lugar de usar el string Base64 gigante
         const localUri = await saveDrawingToStorage(signature);
 
         if (localUri) {
@@ -222,11 +219,10 @@ export default function DetailScreen({ route, navigation }) {
                 </View>
             </View>
 
-            {/* --- MODAL MEJORADO DEL LIENZO --- */}
+            {/* --- MODAL DEL LIENZO --- */}
             <Modal visible={isDrawing} animationType="slide" onRequestClose={() => setIsDrawing(false)} presentationStyle="fullScreen">
                 <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
 
-                    {/* Header del Lienzo */}
                     <View style={[styles.modalHeader, { backgroundColor: theme.card, borderBottomColor: theme.border }]}>
                         <Text style={[styles.modalTitle, { color: theme.text }]}>Lienzo de Dibujo</Text>
                         <TouchableOpacity onPress={() => setIsDrawing(false)} style={styles.closeModalBtn}>
@@ -234,7 +230,6 @@ export default function DetailScreen({ route, navigation }) {
                         </TouchableOpacity>
                     </View>
 
-                    {/* Área de Dibujo */}
                     <View style={{ flex: 1, backgroundColor: 'white' }}>
                         <SignatureScreen
                             ref={signatureRef}
@@ -246,10 +241,7 @@ export default function DetailScreen({ route, navigation }) {
                         />
                     </View>
 
-                    {/* Barra de Herramientas del Lienzo */}
                     <View style={[styles.canvasToolbar, { backgroundColor: theme.card }]}>
-
-                        {/* Selector de Colores */}
                         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginRight: 15 }}>
                             {DRAWING_COLORS.map(color => (
                                 <TouchableOpacity
@@ -264,7 +256,6 @@ export default function DetailScreen({ route, navigation }) {
                             ))}
                         </ScrollView>
 
-                        {/* Herramientas: Borrar, Limpiar, Guardar */}
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <TouchableOpacity style={styles.canvasToolBtn} onPress={handleEraser}>
                                 <Eraser color={penColor === '#FFFFFF' ? theme.primary : theme.textDim} size={22} />
@@ -302,36 +293,11 @@ const styles = StyleSheet.create({
     saveBtn: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 18, borderRadius: 30, marginLeft: 10 },
     saveText: { fontWeight: 'bold', color: '#fff' },
     deleteBtn: { padding: 8, borderRadius: 50, marginRight: 5 },
-
-    // Estilos del Modal del Lienzo
     modalHeader: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 15, alignItems: 'center', borderBottomWidth: 1 },
     modalTitle: { fontSize: 18, fontWeight: 'bold' },
     closeModalBtn: { padding: 5 },
-
-    canvasToolbar: {
-        flexDirection: 'row',
-        padding: 15,
-        alignItems: 'center',
-        justifyContent: 'space-between'
-    },
-    colorDot: {
-        width: 30,
-        height: 30,
-        borderRadius: 15,
-        marginRight: 10,
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.3)'
-    },
-    canvasToolBtn: {
-        padding: 10,
-        marginRight: 5
-    },
-    canvasSaveBtn: {
-        width: 45,
-        height: 45,
-        borderRadius: 25,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginLeft: 10
-    }
+    canvasToolbar: { flexDirection: 'row', padding: 15, alignItems: 'center', justifyContent: 'space-between' },
+    colorDot: { width: 30, height: 30, borderRadius: 15, marginRight: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)' },
+    canvasToolBtn: { padding: 10, marginRight: 5 },
+    canvasSaveBtn: { width: 45, height: 45, borderRadius: 25, justifyContent: 'center', alignItems: 'center', marginLeft: 10 }
 });
