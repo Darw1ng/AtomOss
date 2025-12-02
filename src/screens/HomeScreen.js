@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
         width: 160,
         borderRadius: 12,
         // Opcional: Esto hace que la esquina superior derecha sea cuadrada, apuntando al icono
-        borderTopRightRadius: 0,
+        borderTopRightRadius: 2,
         borderWidth: 1,
         elevation: 8,
         shadowColor: '#000',

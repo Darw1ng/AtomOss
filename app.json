@@ -17,7 +17,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/AtomOss.png",
+        "foregroundImage": "./assets/32 K.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.darwin.atomoss"
