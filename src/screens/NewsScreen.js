@@ -4,14 +4,29 @@ import { useTheme } from '../context/ThemeContext'; // <--- CAMBIO 1: Importar H
 
 const NEWS = [
     {
-        id: '1',
-        title: 'Version 0.0.13 Actualizacion de contenido',
-        date: '28 Nov 2025',
-        image: require('../../assets/cuki.jpeg'),
-        content: 'Esto es la version Alpha, unicamente ciertos individuos seleccionados tendran acceso a esta version.      ' + '-Felicidades eres especial'
+        id: '4',
+        title: '¡Novedades!',
+        date: '01 Dic 2025',
+        image: require('../../assets/oki.jpeg'),
+        content: 'Mejora de Logo!, El calendario funciona de mejor manera con nuevas modificaciones, hay un nuevo canva de dibujo!, la funcion de agregar fotos fue agregada pero aun tiene bugs...'
+    },
+    {
+        id: '3',
+        title: 'Version 0.14 Actualizacion de contenido',
+        date: '01 Dic 2025',
+        image: require('../../assets/kos.jpeg'),
+        content: 'Mejoras de contenido, se mejoraron y arreglaron bugs menores.'
     },
     {
         id: '2',
+        title: 'Version 0.13 Actualizacion de contenido',
+        date: '28 Nov 2025',
+        image: require('../../assets/cuki.jpeg'),
+        content: 'Esto es la version Alpha, unicamente ciertos individuos seleccionados tendran acceso a esta version.      ' + '-Felicidades eres especial'
+
+    },
+    {
+        id: '1',
         title: '¡Bienvenido a AtomOss!',
         date: '28 Nov 2025',
         image: require('../../assets/noticia1.png'),
