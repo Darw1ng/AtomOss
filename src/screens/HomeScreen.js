@@ -12,7 +12,7 @@ import {
     ScrollView,
     Share,
     Alert,
-    Dimensions // Importamos Dimensions
+    Dimensions //
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
@@ -28,7 +28,7 @@ import notesService from '../api/notesService';
 import calendarService from '../api/calendarService';
 
 const READ_NOTIFICATIONS_KEY = '@atomoss_notifications_read_v1';
-const { width } = Dimensions.get('window'); // Ancho de pantalla
+const { width } = Dimensions.get('window'); //
 
 export default function HomeScreen({ navigation }) {
     const { theme } = useTheme();
@@ -41,7 +41,7 @@ export default function HomeScreen({ navigation }) {
     // --- ESTADOS PARA EL MENÚ FLOTANTE ---
     const [optionsVisible, setOptionsVisible] = useState(false);
     const [selectedNote, setSelectedNote] = useState(null);
-    const [menuPosition, setMenuPosition] = useState({ top: 0, right: 10 }); // Posición dinámica
+    const [menuPosition, setMenuPosition] = useState({ top: 0, right: 10 });
 
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -92,15 +92,16 @@ export default function HomeScreen({ navigation }) {
     // --- FUNCIONES DE ACCIÓN ---
 
     const handleOptionsPress = (note, event) => {
-        // Obtenemos la posición Y del toque
-        const { pageY } = event.nativeEvent;
+        // CORRECCIÓN AQUÍ: Obtenemos pageX (horizontal) además de pageY (vertical)
+        const { pageX, pageY } = event.nativeEvent;
 
-        // Ajustamos la posición:
-        // top: donde tocaste.
-        // right: un margen fijo de 15px desde la derecha (ya que el botón siempre está a la derecha).
+        // Calculamos la posición 'right' restando la posición X del ancho total de la pantalla
+        // Esto alinea el menú con el lugar exacto donde tocaste horizontalmente
+        const positionFromRight = width - pageX - 10;
+
         setMenuPosition({
-            top: pageY + 10,  // Un poco más abajo del dedo
-            right: 15
+            top: pageY + 10,
+            right: positionFromRight // Usamos el valor calculado en lugar del fijo '15'
         });
 
         setSelectedNote(note);
@@ -148,7 +149,6 @@ export default function HomeScreen({ navigation }) {
                     title={item.title}
                     content={item.content}
                     onPress={() => navigation.navigate('Detail', { note: item })}
-                    // Pasamos el evento 'e' para capturar coordenadas
                     onLongPress={(e) => handleOptionsPress(item, e)}
                 />
             );
@@ -157,7 +157,6 @@ export default function HomeScreen({ navigation }) {
                 <TouchableOpacity
                     style={[styles.listItem, { borderBottomColor: theme.border }]}
                     onPress={() => navigation.navigate('Detail', { note: item })}
-                    // Pasamos evento en la lista también
                     onLongPress={(e) => handleOptionsPress(item, e)}
                 >
                     <View style={styles.iconBox}><ListIcon size={18} color={theme.textDim} /></View>
@@ -168,7 +167,6 @@ export default function HomeScreen({ navigation }) {
                         </Text>
                     </View>
 
-                    {/* Botón de 3 puntos en modo lista */}
                     <TouchableOpacity onPress={(e) => handleOptionsPress(item, e)} style={{padding: 5}}>
                         <MoreVertical size={16} color={theme.textDim} />
                     </TouchableOpacity>
@@ -252,18 +250,16 @@ export default function HomeScreen({ navigation }) {
                 transparent={true}
                 visible={optionsVisible}
                 onRequestClose={() => setOptionsVisible(false)}
-                animationType="fade" // Fade se ve mejor para popups
+                animationType="fade"
             >
                 <Pressable style={styles.fullScreenOverlay} onPress={() => setOptionsVisible(false)}>
-
-                    {/* El contenedor ahora usa posición absoluta dinámica */}
                     <View style={[
                         styles.popupMenu,
                         {
                             backgroundColor: theme.card,
                             borderColor: theme.border,
                             top: menuPosition.top,
-                            right: menuPosition.right
+                            right: menuPosition.right // Posición dinámica aplicada aquí
                         }
                     ]}>
                         <TouchableOpacity style={styles.popupItem} onPress={handleShare}>
@@ -318,19 +314,19 @@ const styles = StyleSheet.create({
         borderColor: '#fff',
         zIndex: 10
     },
-
-    // --- ESTILOS NUEVOS PARA EL POPUP ---
     fullScreenOverlay: {
         flex: 1,
-        backgroundColor: 'transparent', // Transparente para que parezca flotante
+        backgroundColor: 'transparent',
     },
     popupMenu: {
-        position: 'absolute', // Clave para que flote
+        position: 'absolute',
         width: 160,
         borderRadius: 12,
+        // Opcional: Esto hace que la esquina superior derecha sea cuadrada, apuntando al icono
+        borderTopRightRadius: 0,
         borderWidth: 1,
-        elevation: 8, // Sombra en Android
-        shadowColor: '#000', // Sombra en iOS
+        elevation: 8,
+        shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
