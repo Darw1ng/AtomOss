@@ -204,7 +204,7 @@ export default function HomeScreen({ navigation }) {
                 <FlatList
                     key={viewMode}
                     data={notes}
-                    keyExtractor={(item) => item.id?.toString() || Math.random().toString()}
+                    keyExtractor={(item) => item.id.toString()}
                     numColumns={viewMode === 'grid' ? 3 : 1}
                     columnWrapperStyle={viewMode === 'grid' ? styles.columnWrapper : null}
                     contentContainerStyle={styles.listContent}

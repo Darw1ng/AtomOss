@@ -18,14 +18,12 @@ export default function NoteCard({ title, content, onPress, onLongPress }) {
             }]}
             onPress={onPress}
             activeOpacity={0.7}
+            onLongPress={onLongPress}
         >
             <View style={styles.headerRow}>
                 <Text style={[styles.title, { color: theme.primary }]} numberOfLines={1}>
                     {title || 'Vacío'}
                 </Text>
-                <TouchableOpacity onPress={onLongPress} style={styles.menuBtn} hitSlop={10}>
-                    <MoreVertical size={16} color={theme.textDim} />
-                </TouchableOpacity>
             </View>
 
             <Text style={[styles.content, { color: theme.textDim }]} numberOfLines={4}>

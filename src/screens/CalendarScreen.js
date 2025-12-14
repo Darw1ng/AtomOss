@@ -123,8 +123,15 @@ export default function CalendarScreen() {
         setNewDescription('');
         setIsAllDay(false);
         setRepeatOption('Nunca');
-        setStartDate(new Date());
-        setEndDate(new Date(new Date().getTime() + 60 * 60 * 1000));
+        
+        const now = new Date();
+        const selectedStartDate = new Date(dateObj);
+        selectedStartDate.setHours(now.getHours(), now.getMinutes(), 0, 0);
+        
+        const selectedEndDate = new Date(selectedStartDate.getTime() + 60 * 60 * 1000);
+
+        setStartDate(selectedStartDate);
+        setEndDate(selectedEndDate);
 
         setModalVisible(true);
     };

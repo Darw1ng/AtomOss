@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, LayoutAnimation, Platform, UIManager } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, LayoutAnimation, Platform, UIManager, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../context/ThemeContext';
@@ -53,12 +53,15 @@ export default function NotificationsScreen() {
                     type: 'alert',
                     title: 'Bienvenido a AtomOss',
                     description: 'Explora las nuevas funcionalidades del lienzo mental y el editor de notas.',
-                    time: 'Hace un momento'
+                    time: 'Hace un momento',
+                    originalDate: new Date().toISOString(), // Asignar fecha actual para que aparezca primero
                 }
             ];
 
-            // Combinar y guardar en estado
-            setNotifications([...systemNotifications, ...calendarNotifications]);
+            // Combinar, ordenar y guardar en estado
+            const allNotifications = [...systemNotifications, ...calendarNotifications];
+            allNotifications.sort((a, b) => new Date(b.originalDate) - new Date(a.originalDate)); // Ordenar de más nuevo a más antiguo
+            setNotifications(allNotifications);
 
         } catch (error) {
             console.error("Error al cargar notificaciones:", error);
@@ -154,10 +157,13 @@ export default function NotificationsScreen() {
                                         {item.description}
                                     </Text>
                                     {item.type === 'calendar' && (
-                                        <View style={{flexDirection: 'row', marginTop: 8}}>
+                                        <TouchableOpacity
+                                            style={{flexDirection: 'row', marginTop: 8}}
+                                            onPress={() => Alert.alert('Función no disponible', 'La visualización en mapa aún no está implementada.')}
+                                        >
                                             <MapPin size={14} color={theme.textDim} style={{marginRight: 4}}/>
                                             <Text style={{color: theme.textDim, fontSize: 12}}>Ver en mapa</Text>
-                                        </View>
+                                        </TouchableOpacity>
                                     )}
                                 </View>
                             )}

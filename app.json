@@ -9,7 +9,7 @@
     "splash": {
       "image": "./assets/AtomOss.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#112217"
     },
     "ios": {
       "supportsTablet": true,

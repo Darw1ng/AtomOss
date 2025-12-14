@@ -65,9 +65,29 @@ export default function DetailScreen({ route, navigation }) {
         setContent(newText);
     };
 
+    const saveImageToStorage = async (tempUri) => {
+        try {
+            const filename = FileSystem.documentDirectory + `image_${Date.now()}.jpg`;
+            await FileSystem.copyAsync({
+                from: tempUri,
+                to: filename,
+            });
+            return filename;
+        } catch (error) {
+            console.error("Error al guardar imagen localmente:", error);
+            return null;
+        }
+    };
+
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images });
-        if (!result.canceled) insertMarkdown('![Imagen](' + result.assets[0].uri + ')', '');
+        if (!result.canceled && result.assets && result.assets.length > 0) {
+            const tempUri = result.assets[0].uri;
+            const localUri = await saveImageToStorage(tempUri);
+            if (localUri) {
+                insertMarkdown(`\n![Imagen](${localUri})\n`);
+            }
+        }
     };
 
     const handleSave = async () => {

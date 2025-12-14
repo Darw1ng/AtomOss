@@ -1,15 +1,50 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, TextInput, StyleSheet, TouchableOpacity, Text, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { useTheme } from '../context/ThemeContext';
 import { Play, Info } from 'lucide-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const INITIAL_CODE = `mindmap\n  root((AtomOss))\n    Funcionalidades\n      Notas\n      Canvas`;
+const STORAGE_KEY = '@atomoss_canvas_code_v1';
 
 export default function CanvasScreen() {
     const { theme } = useTheme();
-    const [code, setCode] = useState(INITIAL_CODE);
+    const [code, setCode] = useState('');
     const [htmlContent, setHtmlContent] = useState('');
+    const [isLoading, setIsLoading] = useState(true);
+    const isMounted = useRef(true);
+
+    // Debounce effect
+    useEffect(() => {
+        isMounted.current = true;
+        
+        const loadCode = async () => {
+            const savedCode = await AsyncStorage.getItem(STORAGE_KEY);
+            if (isMounted.current) {
+                setCode(savedCode || INITIAL_CODE);
+                setIsLoading(false);
+            }
+        };
+
+        loadCode();
+
+        return () => {
+            isMounted.current = false;
+        };
+    }, []);
+
+    useEffect(() => {
+        if (!isLoading) {
+            const handler = setTimeout(() => {
+                AsyncStorage.setItem(STORAGE_KEY, code);
+            }, 500); // 500ms debounce
+
+            return () => {
+                clearTimeout(handler);
+            };
+        }
+    }, [code, isLoading]);
 
     const generateHtml = (diagramCode) => `
       <!DOCTYPE html>
@@ -33,7 +68,15 @@ export default function CanvasScreen() {
       </html>
     `;
 
-    useEffect(() => { setHtmlContent(generateHtml(code)); }, [theme]); // Se regenera si cambia el tema
+    useEffect(() => {
+        if (!isLoading) {
+            setHtmlContent(generateHtml(code));
+        }
+    }, [code, theme, isLoading]);
+
+    if (isLoading) {
+        return <ActivityIndicator style={{ flex: 1, backgroundColor: theme.background }} color={theme.primary} size="large" />;
+    }
 
     return (
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={[styles.container, { backgroundColor: theme.background }]}>
