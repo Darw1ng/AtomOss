@@ -49,7 +49,7 @@ const MainMenu = ({ visible, onClose, navigation, viewMode, setViewMode, unreadC
                     </View>
 
                     <ScrollView contentContainerStyle={{ paddingVertical: 10 }}>
-                        <MenuItem theme={theme} icon={Network} label="Lienzo Mental" onPress={() => navigateAndClose('Canvas')} />
+                        <MenuItem theme={theme} icon={Network} label="Lienzo Mental" onPress={() => navigateAndClose('DiagramList')} />
                         <View style={[styles.divider, { backgroundColor: theme.border }]} />
                         <MenuItem theme={theme} icon={Settings} label="Configuración" onPress={() => navigateAndClose('Settings')} />
                         <MenuItem theme={theme} icon={Calendar} label="Calendario" onPress={() => navigateAndClose('Calendar')} />

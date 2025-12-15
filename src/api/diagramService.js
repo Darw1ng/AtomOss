@@ -1,34 +1,77 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const DIAGRAM_STORAGE_KEY = '@atomoss_diagram_v1';
+const DIAGRAMS_STORAGE_KEY = '@atomoss_diagrams_v1';
 
 const diagramService = {
     /**
-     * Saves the entire diagram (an array of paths) to AsyncStorage.
-     * @param {Array} diagram The diagram data to save.
-     * @returns {Promise<void>}
+     * Loads all diagrams from AsyncStorage.
+     * @returns {Promise<Array>} A promise that resolves to an array of diagrams.
      */
-    async saveDiagram(diagram) {
+    async loadAllDiagrams() {
         try {
-            const jsonValue = JSON.stringify(diagram);
-            await AsyncStorage.setItem(DIAGRAM_STORAGE_KEY, jsonValue);
+            const jsonValue = await AsyncStorage.getItem(DIAGRAMS_STORAGE_KEY);
+            return jsonValue != null ? JSON.parse(jsonValue) : [];
         } catch (e) {
-            console.error("Failed to save diagram.", e);
-            throw e; // Or handle it more gracefully
+            console.error("Failed to load diagrams.", e);
+            return [];
         }
     },
 
     /**
-     * Loads the diagram data from AsyncStorage.
-     * @returns {Promise<Array|null>} The loaded diagram data, or null if it doesn't exist.
+     * Loads a single diagram by its ID.
+     * @param {string} id The ID of the diagram to load.
+     * @returns {Promise<Object|null>} The loaded diagram, or null if not found.
      */
-    async loadDiagram() {
+    async loadDiagram(id) {
         try {
-            const jsonValue = await AsyncStorage.getItem(DIAGRAM_STORAGE_KEY);
-            return jsonValue != null ? JSON.parse(jsonValue) : [];
+            const allDiagrams = await this.loadAllDiagrams();
+            return allDiagrams.find(d => d.id === id) || null;
         } catch (e) {
-            console.error("Failed to load diagram.", e);
-            return []; // Return an empty array on error
+            console.error(`Failed to load diagram with id ${id}.`, e);
+            return null;
+        }
+    },
+
+    /**
+     * Saves a diagram. If the diagram has an ID, it updates it. Otherwise, it adds it as a new diagram.
+     * @param {Object} diagram The diagram to save. It should have an 'id' property.
+     * @returns {Promise<void>}
+     */
+    async saveDiagram(diagram) {
+        try {
+            const allDiagrams = await this.loadAllDiagrams();
+            const index = allDiagrams.findIndex(d => d.id === diagram.id);
+
+            if (index !== -1) {
+                // Update existing diagram
+                allDiagrams[index] = diagram;
+            } else {
+                // Add new diagram
+                allDiagrams.push(diagram);
+            }
+
+            const jsonValue = JSON.stringify(allDiagrams);
+            await AsyncStorage.setItem(DIAGRAMS_STORAGE_KEY, jsonValue);
+        } catch (e) {
+            console.error("Failed to save diagram.", e);
+            throw e;
+        }
+    },
+
+    /**
+     * Deletes a diagram by its ID.
+     * @param {string} id The ID of the diagram to delete.
+     * @returns {Promise<void>}
+     */
+    async deleteDiagram(id) {
+        try {
+            const allDiagrams = await this.loadAllDiagrams();
+            const filteredDiagrams = allDiagrams.filter(d => d.id !== id);
+            const jsonValue = JSON.stringify(filteredDiagrams);
+            await AsyncStorage.setItem(DIAGRAMS_STORAGE_KEY, jsonValue);
+        } catch (e) {
+            console.error(`Failed to delete diagram with id ${id}.`, e);
+            throw e;
         }
     },
 };

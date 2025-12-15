@@ -1,63 +1,70 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, StyleSheet, TouchableOpacity, Text, Alert, Modal, TextInput, PanResponder } from 'react-native';
-import Svg, { Rect, G, Text as SvgText, Line } from 'react-native-svg'; // <--- El cambio mágico
+import Svg, { Rect, G, Text as SvgText, Line } from 'react-native-svg';
 import { useTheme } from '../context/ThemeContext';
-import { Trash2, Pointer, Plus, Share2 } from 'lucide-react-native'; // Agregué icono para conectar
+import { Trash2, Pointer, Plus, Share2, Save } from 'lucide-react-native';
 import diagramService from '../api/diagramService';
-import { useFonts } from 'expo-font';
 
 const NODE_WIDTH = 120;
 const NODE_HEIGHT = 40;
 const DOUBLE_TAP_DELAY = 300;
 
-export default function CanvasScreen() {
+export default function CanvasScreen({ route, navigation }) {
     const { theme } = useTheme();
-    
-    // Estado ampliado para incluir conexiones
-    const [diagram, setDiagram] = useState({ nodes: [], connections: [] });
+    const { diagramId, isNew } = route.params;
+
+    const [diagram, setDiagram] = useState({ id: diagramId, name: `Mapa Mental #${diagramId.substring(8)}`, nodes: [], connections: [] });
+    const diagramRef = useRef(diagram);
+    diagramRef.current = diagram;
+
     const [draggingNodeId, setDraggingNodeId] = useState(null);
-    const [tool, setTool] = useState('select'); // 'select' | 'connect'
+    const draggingNodeIdRef = useRef(draggingNodeId);
+    draggingNodeIdRef.current = draggingNodeId;
     
-    // Para edición de texto
+    const [tool, setTool] = useState('select');
+    const toolRef = useRef(tool);
+    toolRef.current = tool;
+
+    const [connectingNodeId, setConnectingNodeId] = useState(null);
+    const connectingNodeIdRef = useRef(connectingNodeId);
+    connectingNodeIdRef.current = connectingNodeId;
+
     const [editingNode, setEditingNode] = useState(null);
     const [inputText, setInputText] = useState('');
-    
-    // Referencias para gestos
-    const lastTap = useRef(null);
-    const offset = useRef({ x: 0, y: 0 }); // Para calcular el arrastre suave
 
-    let [fontsLoaded] = useFonts({
-        'Roboto-Regular': require('../../assets/fonts/Roboto-Regular.ttf'),
-    });
+    const lastTap = useRef(null);
+    const offset = useRef({ x: 0, y: 0 });
+
+    const [pan, setPan] = useState({ x: 0, y: 0 });
+    const panRef = useRef(pan);
+    panRef.current = pan;
+    
+    const panStateRef = useRef({ isPanning: false, startPan: { x: 0, y: 0 } });
 
     useEffect(() => {
         const load = async () => {
-            const data = await diagramService.loadDiagram();
-            // Adaptamos la carga por si el formato anterior era solo un array
-            if (Array.isArray(data)) {
-                setDiagram({ nodes: data, connections: [] });
-            } else if (data) {
-                setDiagram(data);
+            if (!isNew) {
+                const data = await diagramService.loadDiagram(diagramId);
+                if (data) {
+                    setDiagram(data);
+                }
             }
         };
         load();
-    }, []);
+    }, [diagramId, isNew]);
 
     const saveDiagram = (newDiagram) => {
         diagramService.saveDiagram(newDiagram);
     };
 
-    // Lógica para guardar nodos actualizados
-    const updateNodes = (newNodes) => {
-        const newDiagram = { ...diagram, nodes: newNodes };
+    const updateDiagram = (newDiagram) => {
         setDiagram(newDiagram);
         saveDiagram(newDiagram);
-    };
+    }
 
     const findNodeAt = (x, y) => {
-        // Buscamos de arriba a abajo (el último renderizado está encima)
-        for (let i = diagram.nodes.length - 1; i >= 0; i--) {
-            const node = diagram.nodes[i];
+        for (let i = diagramRef.current.nodes.length - 1; i >= 0; i--) {
+            const node = diagramRef.current.nodes[i];
             if (x >= node.x && x <= node.x + node.width && y >= node.y && y <= node.y + node.height) {
                 return node;
             }
@@ -65,7 +72,6 @@ export default function CanvasScreen() {
         return null;
     };
 
-    // Configuración del PanResponder (Gestor de toques nativo)
     const panResponder = useRef(
         PanResponder.create({
             onStartShouldSetPanResponder: () => true,
@@ -73,10 +79,11 @@ export default function CanvasScreen() {
 
             onPanResponderGrant: (evt, gestureState) => {
                 const { locationX, locationY } = evt.nativeEvent;
-                const tappedNode = findNodeAt(locationX, locationY);
+                const canvasX = locationX - panRef.current.x;
+                const canvasY = locationY - panRef.current.y;
+                const tappedNode = findNodeAt(canvasX, canvasY);
                 const now = Date.now();
 
-                // Detección de Doble Tap
                 if (tappedNode && lastTap.current && (now - lastTap.current.time) < DOUBLE_TAP_DELAY && lastTap.current.id === tappedNode.id) {
                     openEditModal(tappedNode);
                     lastTap.current = null;
@@ -85,41 +92,58 @@ export default function CanvasScreen() {
 
                 if (tappedNode) {
                     lastTap.current = { id: tappedNode.id, time: now };
-                    
-                    if (tool === 'select') {
+
+                    if (toolRef.current === 'select') {
                         setDraggingNodeId(tappedNode.id);
-                        // Calculamos la diferencia entre donde toqué y la esquina del nodo
                         offset.current = {
-                            x: locationX - tappedNode.x,
-                            y: locationY - tappedNode.y
+                            x: canvasX - tappedNode.x,
+                            y: canvasY - tappedNode.y
                         };
-                    } else if (tool === 'connect') {
-                         // Aquí iría la lógica futura para conectar nodos
-                         // Por ahora solo seleccionamos
-                         Alert.alert("Conectar", "Selecciona otro nodo para crear un enlace (Lógica pendiente)");
+                    } else if (toolRef.current === 'connect') {
+                        if (!connectingNodeIdRef.current) {
+                            setConnectingNodeId(tappedNode.id);
+                        } else {
+                            if (connectingNodeIdRef.current !== tappedNode.id) {
+                                const newConnection = { from: connectingNodeIdRef.current, to: tappedNode.id };
+                                updateDiagram({ ...diagramRef.current, connections: [...diagramRef.current.connections, newConnection] });
+                            }
+                            setConnectingNodeId(null);
+                        }
                     }
+                } else {
+                    panStateRef.current.isPanning = true;
+                    panStateRef.current.startPan = { ...panRef.current };
                 }
             },
 
             onPanResponderMove: (evt, gestureState) => {
-                if (draggingNodeId && tool === 'select') {
-                    // Actualizamos posición en tiempo real
+                if (draggingNodeIdRef.current && toolRef.current === 'select') {
                     const { locationX, locationY } = evt.nativeEvent;
+                    const canvasX = locationX - panRef.current.x;
+                    const canvasY = locationY - panRef.current.y;
                     setDiagram(prev => ({
                         ...prev,
-                        nodes: prev.nodes.map(n => 
-                            n.id === draggingNodeId 
-                            ? { ...n, x: locationX - offset.current.x, y: locationY - offset.current.y } 
+                        nodes: prev.nodes.map(n =>
+                            n.id === draggingNodeIdRef.current
+                            ? { ...n, x: canvasX - offset.current.x, y: canvasY - offset.current.y }
                             : n
                         )
                     }));
+                } else if (panStateRef.current.isPanning) {
+                    setPan({
+                        x: panStateRef.current.startPan.x + gestureState.dx,
+                        y: panStateRef.current.startPan.y + gestureState.dy,
+                    });
                 }
             },
 
             onPanResponderRelease: () => {
-                if (draggingNodeId) {
+                if (draggingNodeIdRef.current) {
                     setDraggingNodeId(null);
-                    saveDiagram(diagram); // Guardar al soltar
+                    saveDiagram(diagramRef.current);
+                }
+                if (panStateRef.current.isPanning) {
+                    panStateRef.current.isPanning = false;
                 }
             },
         })
@@ -128,13 +152,13 @@ export default function CanvasScreen() {
     const addNode = () => {
         const newNode = {
             id: Date.now(),
-            x: 100,
-            y: 100,
+            x: 100 - panRef.current.x,
+            y: 100 - panRef.current.y,
             text: "Idea Nueva",
             width: NODE_WIDTH,
             height: NODE_HEIGHT,
         };
-        updateNodes([...diagram.nodes, newNode]);
+        updateDiagram({ ...diagramRef.current, nodes: [...diagramRef.current.nodes, newNode] });
     };
 
     const openEditModal = (node) => {
@@ -144,83 +168,87 @@ export default function CanvasScreen() {
 
     const handleUpdateText = () => {
         if (editingNode) {
-            updateNodes(diagram.nodes.map(n =>
+            const newNodes = diagramRef.current.nodes.map(n =>
                 n.id === editingNode.id ? { ...n, text: inputText } : n
-            ));
+            );
+            updateDiagram({ ...diagramRef.current, nodes: newNodes });
             setEditingNode(null);
             setInputText('');
         }
     };
 
     const handleClear = () => {
-        Alert.alert("Limpiar Lienzo", "¿Borrar todo el mapa mental?", [
+        Alert.alert("Limpiar Lienzo", "¿Borrar todo el contenido de este mapa mental?", [
             { text: "Cancelar", style: "cancel" },
-            { 
-                text: "Borrar", 
-                style: "destructive", 
+            {
+                text: "Borrar",
+                style: "destructive",
                 onPress: () => {
-                    setDiagram({ nodes: [], connections: [] });
-                    saveDiagram({ nodes: [], connections: [] });
+                    updateDiagram({ ...diagramRef.current, nodes: [], connections: [] });
                 }
             }
         ]);
     };
 
-    if (!fontsLoaded) return <View style={styles.loadingContainer}><Text>Cargando fuente...</Text></View>;
-
     return (
         <View style={[styles.container, { backgroundColor: theme.background }]}>
-            {/* Área del Lienzo SVG con PanResponder */}
             <View style={styles.canvasContainer} {...panResponder.panHandlers}>
                 <Svg style={styles.canvas}>
-                    {/* 1. Dibujar Conexiones (Líneas) PRIMERO para que queden detrás */}
-                    {diagram.connections && diagram.connections.map((conn, index) => {
-                        // Lógica placeholder para dibujar líneas entre nodos
-                        // Necesitarías buscar las coordenadas de los nodos 'from' y 'to'
-                        return null; 
-                    })}
+                    <G transform={`translate(${pan.x}, ${pan.y})`}>
+                        {diagram.connections && diagram.connections.map((conn, index) => {
+                            const fromNode = diagram.nodes.find(n => n.id === conn.from);
+                            const toNode = diagram.nodes.find(n => n.id === conn.to);
+                            if (!fromNode || !toNode) return null;
 
-                    {/* 2. Dibujar Nodos */}
-                    {diagram.nodes.map(node => (
-                        <G key={node.id} x={node.x} y={node.y}>
-                            {/* Caja del nodo */}
-                            <Rect
-                                width={node.width}
-                                height={node.height}
-                                rx={8} // Radio del borde redondeado
-                                fill={theme.card}
-                                stroke={theme.primary}
-                                strokeWidth={1}
-                            />
-                            {/* Texto del nodo */}
-                            <SvgText
-                                x={node.width / 2}
-                                y={(node.height / 2) + 5} // Ajuste vertical
-                                fill={theme.text}
-                                fontSize="14"
-                                fontFamily="Roboto-Regular"
-                                textAnchor="middle" // Centrar horizontalmente
-                            >
-                                {node.text.length > 15 ? node.text.substring(0, 12) + '...' : node.text}
-                            </SvgText>
-                        </G>
-                    ))}
+                            return (
+                                <Line
+                                    key={`conn-${index}`}
+                                    x1={fromNode.x + fromNode.width / 2}
+                                    y1={fromNode.y + fromNode.height / 2}
+                                    x2={toNode.x + toNode.width / 2}
+                                    y2={toNode.y + toNode.height / 2}
+                                    stroke={theme.primary}
+                                    strokeWidth="2"
+                                />
+                            );
+                        })}
+                        {diagram.nodes.map(node => (
+                            <G key={node.id} x={node.x} y={node.y}>
+                                <Rect
+                                    width={node.width}
+                                    height={node.height}
+                                    rx={8}
+                                    fill={theme.card}
+                                    stroke={connectingNodeId === node.id ? theme.secondary : theme.primary}
+                                    strokeWidth={connectingNodeId === node.id ? 2 : 1}
+                                />
+                                <SvgText
+                                    x={node.width / 2}
+                                    y={(node.height / 2) + 5}
+                                    fill={theme.text}
+                                    fontSize="14"
+                                    fontWeight="bold"
+                                    textAnchor="middle"
+                                >
+                                    {node.text.length > 15 ? node.text.substring(0, 12) + '...' : node.text}
+                                </SvgText>
+                            </G>
+                        ))}
+                    </G>
                 </Svg>
             </View>
 
-            {/* Barra de Herramientas */}
             <View style={[styles.toolbar, { backgroundColor: theme.card }]}>
                 <TouchableOpacity style={styles.toolButton} onPress={addNode}>
                     <Plus size={24} color={theme.primary} />
                     <Text style={[styles.toolText, { color: theme.text }]}>Añadir</Text>
                 </TouchableOpacity>
-                
+
                 <TouchableOpacity style={styles.toolButton} onPress={() => setTool('select')}>
                     <Pointer size={24} color={tool === 'select' ? theme.primary : theme.textDim} />
                     <Text style={[styles.toolText, { color: tool === 'select' ? theme.primary : theme.textDim }]}>Mover</Text>
                 </TouchableOpacity>
 
-                {/* Botón futuro para conexiones */}
                 <TouchableOpacity style={styles.toolButton} onPress={() => setTool('connect')}>
                     <Share2 size={24} color={tool === 'connect' ? theme.primary : theme.textDim} />
                     <Text style={[styles.toolText, { color: tool === 'connect' ? theme.primary : theme.textDim }]}>Unir</Text>
@@ -230,18 +258,25 @@ export default function CanvasScreen() {
                     <Trash2 size={24} color={theme.danger} />
                     <Text style={[styles.toolText, { color: theme.danger }]}>Limpiar</Text>
                 </TouchableOpacity>
+
+                <TouchableOpacity style={styles.toolButton} onPress={() => {
+                    saveDiagram(diagramRef.current);
+                    Alert.alert("Guardado", "Tu mapa mental ha sido guardado.");
+                }}>
+                    <Save size={24} color={theme.success} />
+                    <Text style={[styles.toolText, { color: theme.success }]}>Guardar</Text>
+                </TouchableOpacity>
             </View>
 
-            {/* Modal de Edición (Igual que antes) */}
             <Modal transparent visible={!!editingNode} animationType="fade" onRequestClose={() => setEditingNode(null)}>
                 <View style={styles.modalOverlay}>
                     <View style={[styles.modalContent, { backgroundColor: theme.card }]}>
                         <Text style={[styles.modalTitle, { color: theme.text }]}>Editar Idea</Text>
-                        <TextInput 
+                        <TextInput
                             style={[styles.input, { color: theme.text, backgroundColor: theme.background, borderColor: theme.border }]}
-                            value={inputText} 
-                            onChangeText={setInputText} 
-                            autoFocus 
+                            value={inputText}
+                            onChangeText={setInputText}
+                            autoFocus
                         />
                         <TouchableOpacity style={[styles.saveButton, { backgroundColor: theme.primary }]} onPress={handleUpdateText}>
                             <Text style={styles.saveButtonText}>Guardar</Text>
@@ -256,7 +291,7 @@ export default function CanvasScreen() {
 const styles = StyleSheet.create({
     container: { flex: 1 },
     loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    canvasContainer: { flex: 1, width: '100%', overflow: 'hidden' }, // Importante para PanResponder
+    canvasContainer: { flex: 1, width: '100%', overflow: 'hidden' },
     canvas: { flex: 1, width: '100%', height: '100%' },
     toolbar: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', height: 80, paddingBottom: 20, borderTopWidth: 1 },
     toolButton: { alignItems: 'center', justifyContent: 'center' },

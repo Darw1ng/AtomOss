@@ -11,6 +11,7 @@ import CalendarScreen from './src/screens/CalendarScreen';
 import NewsScreen from './src/screens/NewsScreen';
 import NotificationsScreen from './src/screens/NotificationsScreen';
 import CanvasScreen from './src/screens/CanvasScreen';
+import DiagramListScreen from './src/screens/DiagramListScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -36,6 +37,7 @@ const MainNavigator = () => {
                 <Stack.Screen name="News" component={NewsScreen} options={{ title: 'Noticias' }} />
                 <Stack.Screen name="Notifications" component={NotificationsScreen} options={{ title: 'Notificaciones' }} />
                 <Stack.Screen name="Canvas" component={CanvasScreen} options={{ title: 'Lienzo Mental' }} />
+                <Stack.Screen name="DiagramList" component={DiagramListScreen} options={{ title: 'Mapas Mentales' }} />
             </Stack.Navigator>
         </NavigationContainer>
     );
