@@ -1,0 +1,548 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="https://www.w3.org/1999/xhtml">
+<head>
+<title>FontsAddict - Download fonts and web font icons!</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="description" content="Download free fonts (.ttf & .otf) and generate web icon fonts. Over 55,808 fonts and 30,000+ web icons ready to download. TrueType and OpenType fonts. SVG and PNG for web icons."/>
+	<link rel="stylesheet" type="text/css" href="/css/jquery.ui.theme.css">
+	<link rel="stylesheet" type="text/css" href="/css/jquery.ui.slider.css">
+	<link rel="stylesheet" type="text/css" href="/css/style.css">
+	<link rel="stylesheet" type="text/css" href="/css/farbtastic.css" />
+	<link rel="stylesheet" type="text/css" href="/css/animation.css">
+	<link rel="shortcut icon" href="/images/favicon.ico" type="image/x-icon">
+ 	<script type="text/javascript" src="/js/jquery-1.8.2.min.js"></script>
+	<script type="text/javascript" src="/js/jquery.ui.core.js"></script>
+	<script type="text/javascript" src="/js/jquery.ui.widget.js"></script>
+	<script type="text/javascript" src="/js/jquery.ui.mouse.js"></script>
+	<script type="text/javascript" src="/js/jquery.ui.slider.js"></script>
+	<script type="text/javascript" src="/js/farbtastic.js"></script>
+	<script type="text/javascript" src="/js/svg-upload.js"></script>
+	<script type="text/javascript">
+		var text="";
+		var fontsize = "60";
+		var foreground="000000";
+		var background="ffffff";
+	</script>
+	<script type="text/javascript" src="/js/functions.js"></script>
+</head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-QP4Q3YBYB8"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-QP4Q3YBYB8');
+</script>
+<body>
+<div id="menuHeaderContainer">
+<div style="width:960px;margin: 0px auto 0px auto;"> 
+		<div id="menu-bar">
+		<a class="homelink" href="https://www.fontsaddict.com"><span style="float:left; margin-left:10px; line-height:55px; font-size:26px; color:#ffffff; letter-spacing:-0.05em;"><strong>fonts</strong></span><span style="float:left; line-height:55px; font-size:26px; color:#34495e; letter-spacing:-0.05em; margin-right:30px;">addict</span></a>
+			<ul class="main-menu">
+				<li class="item"><a href="/fonts">Fonts</a></li>
+				<li class="item"><a href="/icons">Icons</a></li>
+				<li class="item"><a href="/popular">Popular</a></li>
+			</ul>
+				<div class="search-box">		<form method="GET" action="/search">			<input class="inputbox" name="searchq" value="" type="text">			
+				<div id="toggle_type" style="float:left">
+				<div class="toggle-search-arr" ></div>
+				<div class="toggle-search">
+				
+      <div class='togglebox'>
+        <input type='checkbox' name='searchtype' id='chkbx' >
+        <label for='chkbx'><b></b></label>
+      </div>
+</div></div>
+<button type="submit" class="search-button"><i class="icon-search"></i></button>			</form>			</div><div style="float:right; margin-top:7px; margin-right:30px;"><a class="button large activeBlue quickDownload"><i class="icon-download" id="downloadWebfontIcon"> </i><i class="icon-spin animate-spin" id="downloadWebfontWait" style="display:none;"> </i>Download Webfont <span id="selNum">(0)</span></a><a id="btnDownload"><i class="icon-thumbs"> </i></a></div>
+		</div>
+		        <div class="downloadmenu">
+            <div id="download_dropdown" style="display: none;">
+                <div class="iconlist clearfix">
+                    <div style="clear:both" id="iconDropDown">
+                        <div style="display: none;" id="selectInfo">No icons have been selected.</div>
+                        <div style="display: block;" class="iconGrid"></div>
+                    
+                    </div>
+
+                </div>
+            </div>
+        </div>
+		</div>
+		</div>
+	<div id="page">
+		<div class="cat-type-bar">Font Categories</div>
+			<div id="categories">	
+			<div class="alpha_links">
+							<a href="/font/list/A">A</a>
+							<a href="/font/list/B">B</a>
+							<a href="/font/list/C">C</a>
+							<a href="/font/list/D">D</a>
+							<a href="/font/list/E">E</a>
+							<a href="/font/list/F">F</a>
+							<a href="/font/list/G">G</a>
+							<a href="/font/list/H">H</a>
+							<a href="/font/list/I">I</a>
+							<a href="/font/list/J">J</a>
+							<a href="/font/list/K">K</a>
+							<a href="/font/list/L">L</a>
+							<a href="/font/list/M">M</a>
+							<a href="/font/list/N">N</a>
+							<a href="/font/list/O">O</a>
+							<a href="/font/list/P">P</a>
+							<a href="/font/list/Q">Q</a>
+							<a href="/font/list/R">R</a>
+							<a href="/font/list/S">S</a>
+							<a href="/font/list/T">T</a>
+							<a href="/font/list/U">U</a>
+							<a href="/font/list/V">V</a>
+							<a href="/font/list/W">W</a>
+							<a href="/font/list/X">X</a>
+							<a href="/font/list/Y">Y</a>
+							<a href="/font/list/Z">Z</a>
+							<a href="/font/list/Numbers">#</a>
+			            </div>	
+			<ul class="cats">
+					<li class="column1 title"><span class="title-text"><a href="/font/category/basic">Basic</a></span></li>
+					<li class="column1"><a href="/font/category/basic-fixed-width">Fixed Width</a></li>
+					<li class="column1"><a href="/font/category/basic-monospace">Monospace</a></li>
+					<li class="column1"><a href="/font/category/basic-sans-serif">Sans Serif</a></li>
+					<li class="column1"><a href="/font/category/basic-serif">Serif</a></li>
+					<li class="column1"><a href="/font/category/basic-various">Various</a></li>
+					<li class="column1 space"></li>
+						<li class="column1 title"><span class="title-text"><a href="/font/category/bitmap">Bitmap</a></span></li>
+					<li class="column1"><a href="/font/category/bitmap-digital">Digital</a></li>
+					<li class="column1"><a href="/font/category/bitmap-pixelated">Pixelated</a></li>
+					<li class="column1 space"></li>
+						<li class="column1 title"><span class="title-text"><a href="/font/category/dingbats">Dingbats</a></span></li>
+					<li class="column1"><a href="/font/category/dingbats-alien">Alien</a></li>
+					<li class="column2 reset"><a href="/font/category/dingbats-ancient">Ancient</a></li>
+					<li class="column2"><a href="/font/category/dingbats-animals">Animals</a></li>
+					<li class="column2"><a href="/font/category/dingbats-art">Art</a></li>
+					<li class="column2"><a href="/font/category/dingbats-asian">Asian</a></li>
+					<li class="column2"><a href="/font/category/dingbats-barcode">Barcode</a></li>
+					<li class="column2"><a href="/font/category/dingbats-braille">Braille</a></li>
+					<li class="column2"><a href="/font/category/dingbats-cartoon">Cartoon</a></li>
+					<li class="column2"><a href="/font/category/dingbats-esoteric">Esoteric</a></li>
+					<li class="column2"><a href="/font/category/dingbats-fantastic">Fantastic</a></li>
+					<li class="column2"><a href="/font/category/dingbats-foods">Foods</a></li>
+					<li class="column2"><a href="/font/category/dingbats-games">Games</a></li>
+					<li class="column2"><a href="/font/category/dingbats-horror">Horror</a></li>
+					<li class="column2"><a href="/font/category/dingbats-human">Human</a></li>
+					<li class="column3 reset"><a href="/font/category/dingbats-military">Military</a></li>
+					<li class="column3"><a href="/font/category/dingbats-nature">Nature</a></li>
+					<li class="column3"><a href="/font/category/dingbats-runes">Runes</a></li>
+					<li class="column3"><a href="/font/category/dingbats-signs">Signs</a></li>
+					<li class="column3"><a href="/font/category/dingbats-sport">Sport</a></li>
+					<li class="column3"><a href="/font/category/dingbats-various">Various</a></li>
+					<li class="column3 space"></li>
+						<li class="column3 title"><span class="title-text"><a href="/font/category/fancy">Fancy</a></span></li>
+					<li class="column3"><a href="/font/category/fancy-3d">3D</a></li>
+					<li class="column3"><a href="/font/category/fancy-cartoon">Cartoon</a></li>
+					<li class="column3"><a href="/font/category/fancy-comic">Comic</a></li>
+					<li class="column3"><a href="/font/category/fancy-curly">Curly</a></li>
+					<li class="column3"><a href="/font/category/fancy-digital">Digital</a></li>
+					<li class="column4 reset"><a href="/font/category/fancy-distorted">Distorted</a></li>
+					<li class="column4"><a href="/font/category/fancy-eroded">Eroded</a></li>
+					<li class="column4"><a href="/font/category/fancy-futuristic">Futuristic</a></li>
+					<li class="column4"><a href="/font/category/fancy-groovy">Groovy</a></li>
+					<li class="column4"><a href="/font/category/fancy-military">Military</a></li>
+					<li class="column4"><a href="/font/category/fancy-modern">Modern</a></li>
+					<li class="column4"><a href="/font/category/fancy-movies">Movies</a></li>
+					<li class="column4"><a href="/font/category/fancy-old-school">Old School</a></li>
+					<li class="column4"><a href="/font/category/fancy-outlined">Outlined</a></li>
+					<li class="column4"><a href="/font/category/fancy-retro">Retro</a></li>
+					<li class="column4"><a href="/font/category/fancy-scary">Scary</a></li>
+					<li class="column4"><a href="/font/category/fancy-techno">Techno</a></li>
+					<li class="column4"><a href="/font/category/fancy-various">Various</a></li>
+					<li class="column5 reset"><a href="/font/category/fancy-western">Western</a></li>
+					<li class="column5 space"></li>
+						<li class="column5 title"><span class="title-text"><a href="/font/category/foreign">Foreign</a></span></li>
+					<li class="column5"><a href="/font/category/foreign-arabic">Arabic</a></li>
+					<li class="column5"><a href="/font/category/foreign-bangla">Bangla</a></li>
+					<li class="column5"><a href="/font/category/foreign-burma">Burma</a></li>
+					<li class="column5"><a href="/font/category/foreign-can-syllabics">Can Syllabics</a></li>
+					<li class="column5"><a href="/font/category/foreign-central-europe">Central Europe</a></li>
+					<li class="column5"><a href="/font/category/foreign-chinese">Chinese</a></li>
+					<li class="column5"><a href="/font/category/foreign-cyrillic">Cyrillic</a></li>
+					<li class="column5"><a href="/font/category/foreign-ethiopic">Ethiopic</a></li>
+					<li class="column5"><a href="/font/category/foreign-georgian">Georgian</a></li>
+					<li class="column5"><a href="/font/category/foreign-greek">Greek</a></li>
+					<li class="column6 reset"><a href="/font/category/foreign-hebrew">Hebrew</a></li>
+					<li class="column6"><a href="/font/category/foreign-japanese">Japanese</a></li>
+					<li class="column6"><a href="/font/category/foreign-korean">Korean</a></li>
+					<li class="column6"><a href="/font/category/foreign-lao">Lao</a></li>
+					<li class="column6"><a href="/font/category/foreign-mexican">Mexican</a></li>
+					<li class="column6"><a href="/font/category/foreign-mongolian">Mongolian</a></li>
+					<li class="column6"><a href="/font/category/foreign-roman">Roman</a></li>
+					<li class="column6"><a href="/font/category/foreign-russian">Russian</a></li>
+					<li class="column6"><a href="/font/category/foreign-thai">Thai</a></li>
+					<li class="column6"><a href="/font/category/foreign-tibetan">Tibetan</a></li>
+					<li class="column6"><a href="/font/category/foreign-unicode">Unicode</a></li>
+					<li class="column6"><a href="/font/category/foreign-various">Various</a></li>
+					<li class="column6"><a href="/font/category/foreign-vietnamese">Vietnamese</a></li>
+						<li class="column7 reset title"><span class="title-text"><a href="/font/category/gothic">Gothic</a></span></li>
+					<li class="column7"><a href="/font/category/gothic-celtic">Celtic</a></li>
+					<li class="column7"><a href="/font/category/gothic-initials">Initials</a></li>
+					<li class="column7"><a href="/font/category/gothic-medieval">Medieval</a></li>
+					<li class="column7"><a href="/font/category/gothic-modern">Modern</a></li>
+					<li class="column7"><a href="/font/category/gothic-various">Various</a></li>
+					<li class="column7 space"></li>
+						<li class="column7 title"><span class="title-text"><a href="/font/category/holiday">Holiday</a></span></li>
+					<li class="column7"><a href="/font/category/holiday-christmas">Christmas</a></li>
+					<li class="column7"><a href="/font/category/holiday-decorative">Decorative</a></li>
+					<li class="column7"><a href="/font/category/holiday-easter">Easter</a></li>
+					<li class="column7"><a href="/font/category/holiday-halloween">Halloween</a></li>
+					<li class="column7"><a href="/font/category/holiday-valentine">Valentine</a></li>
+						<li class="column8 reset title"><span class="title-text"><a href="/font/category/script">Script</a></span></li>
+					<li class="column8"><a href="/font/category/script-brush">Brush</a></li>
+					<li class="column8"><a href="/font/category/script-calligraphy">Calligraphy</a></li>
+					<li class="column8"><a href="/font/category/script-graffiti">Graffiti</a></li>
+					<li class="column8"><a href="/font/category/script-handwritten">Handwritten</a></li>
+					<li class="column8"><a href="/font/category/script-school">School</a></li>
+					<li class="column8"><a href="/font/category/script-trash">Trash</a></li>
+					<li class="column8 space"></li>
+										<li class="column8 space"></li>
+					<li class="column8 space"></li>
+					<li class="column8 space"></li>
+					<li class="column8 space"></li>
+					<li class="column8 space"></li>
+					<li class="column8 space"></li>
+				</ul>
+
+			</div>
+			<div style="text-align:center; margin:10px 0 10px 0;">
+			<script type="text/javascript"><!--
+			google_ad_client = "ca-pub-7421643372689437";
+			/* FontsAddict Horizontal 728x90 */
+			google_ad_slot = "7738492966";
+			google_ad_width = 728;
+			google_ad_height = 90;
+			//-->
+			</script>
+			<script type="text/javascript"
+			src="//pagead2.googlesyndication.com/pagead/show_ads.js">
+			</script>
+			</div>			
+			<div class="cat-type-bar">Icon Categories</div>
+				<div id="categories" style="height:90px; margin-bottom:20px;">			
+				<ul class="cats">
+<li class="column1"><a href="/icon/category/animals">Animals</a></li>
+<li class="column1"><a href="/icon/category/arrows">Arrows</a></li>
+<li class="column1"><a href="/icon/category/art">Art</a></li>
+<li class="column1"><a href="/icon/category/buildings">Buildings</a></li>
+<li class="column2 icoreset"><a href="/icon/category/business">Business</a></li>
+<li class="column2"><a href="/icon/category/cinema">Cinema</a></li>
+<li class="column2"><a href="/icon/category/commerce">Commerce</a></li>
+<li class="column2"><a href="/icon/category/controls">Controls</a></li>
+<li class="column3 icoreset"><a href="/icon/category/education">Education</a></li>
+<li class="column3"><a href="/icon/category/fashion">Fashion</a></li>
+<li class="column3"><a href="/icon/category/food">Food</a></li>
+<li class="column3"><a href="/icon/category/gestures">Gestures</a></li>
+<li class="column4 icoreset"><a href="/icon/category/interface">Interface</a></li>
+<li class="column4"><a href="/icon/category/logo">Logo</a></li>
+<li class="column4"><a href="/icon/category/maps-and-flags">Maps And Flags</a></li>
+<li class="column4"><a href="/icon/category/medical">Medical</a></li>
+<li class="column5 icoreset"><a href="/icon/category/monuments">Monuments</a></li>
+<li class="column5"><a href="/icon/category/multimedia">Multimedia</a></li>
+<li class="column5"><a href="/icon/category/music">Music</a></li>
+<li class="column5"><a href="/icon/category/nature">Nature</a></li>
+<li class="column6 icoreset"><a href="/icon/category/networking">Networking</a></li>
+<li class="column6"><a href="/icon/category/other">Other</a></li>
+<li class="column6"><a href="/icon/category/people">People</a></li>
+<li class="column6"><a href="/icon/category/shapes">Shapes</a></li>
+<li class="column7 icoreset"><a href="/icon/category/signs">Signs</a></li>
+<li class="column7"><a href="/icon/category/social">Social</a></li>
+<li class="column7"><a href="/icon/category/sports">Sports</a></li>
+<li class="column7"><a href="/icon/category/technology">Technology</a></li>
+<li class="column8 icoreset"><a href="/icon/category/tools-and-utensils">Tools And Utensils</a></li>
+<li class="column8"><a href="/icon/category/transport">Transport</a></li>
+<li class="column8"><a href="/icon/category/weapons">Weapons</a></li>
+<li class="column8"><a href="/icon/category/weather">Weather</a></li>
+<li class="column8"><a href="/icon/category/web">Web</a></li>
+				</ul>	</div>
+
+			<div id="right">
+				<div id="module">
+				<script type="text/javascript"><!--
+				google_ad_client = "ca-pub-7421643372689437";
+				/* FontsAddict Vertical */
+				google_ad_slot = "0541883079";
+				google_ad_width = 120;
+				google_ad_height = 600;
+				//-->
+				</script>
+				<script type="text/javascript"
+				src="//pagead2.googlesyndication.com/pagead/show_ads.js">
+				</script>
+				</div>
+			</div>
+			<div id="left">
+<div class="font-icon-tabs-container">
+<div style="display:inline-block; margin-right:-3px; width:644px; border-bottom: 1px solid #c4c4c4; height:30px;">
+</div>
+<div style="float:right; width:5px; height:30px; border-bottom: 1px solid #C4C4C4;"> </div>
+<div class="toggleOptions " target="icon-options" style="border-left: 1px solid #C4C4C4; border-right: 1px solid #C4C4C4;">
+Icons
+</div>	
+<div class="toggleOptions optionOn" target="font-options" style="border-left: 1px solid #C4C4C4;">
+Fonts
+</div>
+</div>
+
+<div id="font-options" class="optionType optionActive" >
+	<div class="font-options-content">
+	<div id="input_custom"><label class="customlabel">Custom Text</label><input id="custombox" class="custombox" placeholder="Enter your text here.." type="text"/></div>
+	<div class="load" style="visibility: hidden;"></div>
+	<div class="slider"><label class="sizelabel">Size</label>
+	<div id="slider-range-min"></div>
+	<input type="text" id="fsizept" />
+</div>
+    <div class="color-controls">
+        <div id="bg-color" class="color-picker-square" style="background-color: #FFFFFF"
+            color="#FFFFFF"
+            title="Change background color"></div>
+
+        <div id="fg-color" class="color-picker-square" style="background-color: #000000"
+            color="#000000"
+            title="Change foreground color"></div>
+            
+        <div id="colorpicker" style="display: none;"></div>            
+    </div>
+	<i id="permlink-preview" class="icon-link" title="Get a link to these settings"></i>
+	<i id="reset-preview" class=" icon-refresh" title="Reset to default"></i>
+	<div id="permlink-box" style='display:none;'>
+	</div></div>
+</div>
+<div id="icon-options" class="optionType " style="display:none;" >
+<div class="icon-options-content">
+
+<div id="customFileNames" style="float:left; padding-left:5px; line-height:40px;">
+<b>Font Name</b>
+<input name="customFontName" class="custombox" style="margin-right:10px;" placeholder="Font name" type="text"/>
+<b>CSS Prefix</b>
+<input name="customCSSName" class="custombox" value="icon-" type="text"/>
+</div>
+<div style="float:right; width:15px; height:30px; border-bottom: 1px solid #C4C4C4;"> </div>
+<div id="customUploadsbtn" class="customBtn" style="border-left: 1px solid #C4C4C4; border-right: 1px solid #C4C4C4;">
+Custom Uploads
+</div>	
+<div id="customizeWebfontbtn" class="customBtn" style="border-left: 1px solid #C4C4C4;">
+Customize Webfont
+</div>
+<div style="float:right; width:15px; height:30px; border-bottom: 1px solid #C4C4C4;"> </div>
+</div>
+<div id="customizeWebfont">
+
+</div>
+<div id="customUploads">
+
+<div id="dragandrophandler">Drag & Drop Custom SVG Files Here</div>
+
+<div id="uploadStatusBar" style="position:relative;">
+
+</div>
+<div class="clear-uploads">
+
+</div>
+<div id="customSvgUploads">
+
+</div>
+</div>
+</div>
+<div class="index-font-bar"><a href="https://www.fontsaddict.com/icons">New Font Icons</a></div>
+
+            <div style='float: left;' class="glyph-container" title="Owl sage symbol">
+            <div class="glyph" id="1" glyph-name="owl-sage-symbol">
+                <div class="glyph-img">
+                    <img class="glyph-icon" type="image/png" src="/images/icons/png/thumb/1.png" height="64px" rel="1">
+                </div>
+			<div style="position: relative; left: 105px; bottom:-12px">
+			<div id="ilinks">
+			<a style="border-radius: 20px; margin-left:-2px;padding-right:7px; padding-left: 5px; font-size: 12px;  " href="/icon/owl-sage-symbol.html" style="font-family: Georgia;">i</a>
+			</div>
+			</div>
+            </div>
+        </div>
+            <div style='float: left;' class="glyph-container" title="Animal paw print shape">
+            <div class="glyph" id="2" glyph-name="animal-paw-print-shape">
+                <div class="glyph-img">
+                    <img class="glyph-icon" type="image/png" src="/images/icons/png/thumb/2.png" height="64px" rel="2">
+                </div>
+			<div style="position: relative; left: 105px; bottom:-12px">
+			<div id="ilinks">
+			<a style="border-radius: 20px; margin-left:-2px;padding-right:7px; padding-left: 5px; font-size: 12px;  " href="/icon/animal-paw-print-shape.html" style="font-family: Georgia;">i</a>
+			</div>
+			</div>
+            </div>
+        </div>
+            <div style='float: left;' class="glyph-container" title="Bear face">
+            <div class="glyph" id="3" glyph-name="bear-face">
+                <div class="glyph-img">
+                    <img class="glyph-icon" type="image/png" src="/images/icons/png/thumb/3.png" height="64px" rel="3">
+                </div>
+			<div style="position: relative; left: 105px; bottom:-12px">
+			<div id="ilinks">
+			<a style="border-radius: 20px; margin-left:-2px;padding-right:7px; padding-left: 5px; font-size: 12px;  " href="/icon/bear-face.html" style="font-family: Georgia;">i</a>
+			</div>
+			</div>
+            </div>
+        </div>
+            <div style='float: left;' class="glyph-container" title="Owl, bird, animal">
+            <div class="glyph" id="4" glyph-name="owl-bird-animal">
+                <div class="glyph-img">
+                    <img class="glyph-icon" type="image/png" src="/images/icons/png/thumb/4.png" height="64px" rel="4">
+                </div>
+			<div style="position: relative; left: 105px; bottom:-12px">
+			<div id="ilinks">
+			<a style="border-radius: 20px; margin-left:-2px;padding-right:7px; padding-left: 5px; font-size: 12px;  " href="/icon/owl-bird-animal.html" style="font-family: Georgia;">i</a>
+			</div>
+			</div>
+            </div>
+        </div>
+            <div style='float: left;' class="glyph-container" title="Sparrow carrying a baby">
+            <div class="glyph" id="5" glyph-name="sparrow-carrying-a-baby">
+                <div class="glyph-img">
+                    <img class="glyph-icon" type="image/png" src="/images/icons/png/thumb/5.png" height="64px" rel="5">
+                </div>
+			<div style="position: relative; left: 105px; bottom:-12px">
+			<div id="ilinks">
+			<a style="border-radius: 20px; margin-left:-2px;padding-right:7px; padding-left: 5px; font-size: 12px;  " href="/icon/sparrow-carrying-a-baby.html" style="font-family: Georgia;">i</a>
+			</div>
+			</div>
+            </div>
+        </div>
+            <div style='float: left;' class="glyph-container" title="Fish silhouette">
+            <div class="glyph" id="6" glyph-name="fish-silhouette-1">
+                <div class="glyph-img">
+                    <img class="glyph-icon" type="image/png" src="/images/icons/png/thumb/6.png" height="64px" rel="6">
+                </div>
+			<div style="position: relative; left: 105px; bottom:-12px">
+			<div id="ilinks">
+			<a style="border-radius: 20px; margin-left:-2px;padding-right:7px; padding-left: 5px; font-size: 12px;  " href="/icon/fish-silhouette-1.html" style="font-family: Georgia;">i</a>
+			</div>
+			</div>
+            </div>
+        </div>
+            <div style='float: left;' class="glyph-container" title="Duckling side view silhouette">
+            <div class="glyph" id="7" glyph-name="duckling-side-view-silhouette">
+                <div class="glyph-img">
+                    <img class="glyph-icon" type="image/png" src="/images/icons/png/thumb/7.png" height="64px" rel="7">
+                </div>
+			<div style="position: relative; left: 105px; bottom:-12px">
+			<div id="ilinks">
+			<a style="border-radius: 20px; margin-left:-2px;padding-right:7px; padding-left: 5px; font-size: 12px;  " href="/icon/duckling-side-view-silhouette.html" style="font-family: Georgia;">i</a>
+			</div>
+			</div>
+            </div>
+        </div>
+            <div style='float: left;' class="glyph-container" title="Dog side">
+            <div class="glyph" id="8" glyph-name="dog-side">
+                <div class="glyph-img">
+                    <img class="glyph-icon" type="image/png" src="/images/icons/png/thumb/8.png" height="64px" rel="8">
+                </div>
+			<div style="position: relative; left: 105px; bottom:-12px">
+			<div id="ilinks">
+			<a style="border-radius: 20px; margin-left:-2px;padding-right:7px; padding-left: 5px; font-size: 12px;  " href="/icon/dog-side.html" style="font-family: Georgia;">i</a>
+			</div>
+			</div>
+            </div>
+        </div>
+            <div style='float: left;' class="glyph-container" title="Little pony ride">
+            <div class="glyph" id="9" glyph-name="little-pony-ride">
+                <div class="glyph-img">
+                    <img class="glyph-icon" type="image/png" src="/images/icons/png/thumb/9.png" height="64px" rel="9">
+                </div>
+			<div style="position: relative; left: 105px; bottom:-12px">
+			<div id="ilinks">
+			<a style="border-radius: 20px; margin-left:-2px;padding-right:7px; padding-left: 5px; font-size: 12px;  " href="/icon/little-pony-ride.html" style="font-family: Georgia;">i</a>
+			</div>
+			</div>
+            </div>
+        </div>
+            <div style='float: left;' class="glyph-container" title="Carps fish jump">
+            <div class="glyph" id="10" glyph-name="carps-fish-jump">
+                <div class="glyph-img">
+                    <img class="glyph-icon" type="image/png" src="/images/icons/png/thumb/10.png" height="64px" rel="10">
+                </div>
+			<div style="position: relative; left: 105px; bottom:-12px">
+			<div id="ilinks">
+			<a style="border-radius: 20px; margin-left:-2px;padding-right:7px; padding-left: 5px; font-size: 12px;  " href="/icon/carps-fish-jump.html" style="font-family: Georgia;">i</a>
+			</div>
+			</div>
+            </div>
+        </div>
+	
+<div class="viewAllItems"><a href="/icons">All New Font Icons</a></div>
+
+<div class="index-font-bar"><a href="https://www.fontsaddict.com/fonts">New Fonts</a></div>
+				<div class="font-item">
+				<div class="font-item-title"><span class="font-item-name"><a href="/font/icewave-wide.html">Icewave Wide</a></span><span class="font-item-creator"> by <a href="http://iconian.com/" rel=nofollow>Daniel Zadorozny</a></span><span class="font-item-attr" style="background-color:#5B7B9C;">Donationware</span> <span class="font-item-attr" style="background-color:#dc143c;">New</span></div>
+					<div class="font-item-image"><a href="/font/icewave-wide.html"><img id="fontimg" class="fontimg" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAg0AAABHCAMAAACzmoSFAAAAulBMVEUEAgSEhoREQkTExsQkIiSkpqRkYmTk5uQUEhSUlpTU1tQ0MjS0trR0cnRUUlT09vQMCgyMjozMzswsKiysrqxsamzs7uwcGhycnpzc3tw8Ojy8vrx8enxcWlxMSkz8/vwEBgSMioxERkTMyswkJiSsqqxkZmTs6uwUFhScmpzc2tw0NjS8urx0dnRUVlT8+vwMDgyUkpTU0tQsLiy0srRsbmz08vQcHhykoqTk4uQ8PjzEwsR8fnxcXlwwf+1fAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAEsUlEQVR4nO2dbVvaMBSGq6KgTmHofEFY2HQOXxBxior4///WxluTtqfpOWkYRZ/7Yz1N8pzeXAJ6JYECYE6w7AWAAgEbgAY2AA1sABrYADSGDa+Blf3Ifb36S7M1vOjUiMpHFSvdbLbWLzr3aaWRiUfmrcPpteF5fNlX5i0b0Z8Nzq66+43x0mqdUuNu72RjEC2YzVfb+k00pDequKUg8RGtmnwK1KNKCStK4GTDzto6ZQHVHE5pZsuC9o+sls25/faHmOamadaE83XeEi17vXFNQeIjGtOGlLCiBA42bDbshUZzNoec0uyWBcFWRssmlPc6qTMdfA1fNHq+9pd4046dU5D4iCa1YRy2X42MyU0gtqG+mzGwbg63lNOyWM8oG6pNm/1BcHyYDFo7iwx7bdgkTUHiI5qDDUHwbKyJn0BqQ7+dOfJ8aHYpq2VBP8OGI+pXRJStZND7V2PU3kGOFO42ZERzsiEILucDChIIbThkLGM2NL+U17KDDBtajOlGyaBrxqi3eVLksMEezdGG+XSSBOQnTLPuPfIT8/VnhntMDs0v5bWsZG2Z6rUZ89UG1vlypSDxES3LBntYUQKZDQN+HwWlXmzgPeI3fqk0BckybZiGFSWQ2SDoo49S/zZ4W9oq2CBPABv89ZIANsAGRsNgg7gUNsAGp5bBBh8JYIO/XhLABtjAaBhsEJfCBtjg1DLY4CMBbPDXS4LPaYOkD4LS4trApMA2UMAGt1ImsMFjKWxQsCEENijYEAIbFGwIgQ0KNoTABvUBbTA5sJcW2AZ7iuwuLN+GrASwgV9qT5HdBdjAWQVssEaDDeKWwQYfCWADv9SeIrsLsIGzCthgjfbhbMAnzBzRPtwnTNiQIxpsmOFqQyqwwQpsMEaFDeRFA9jA7uWCosGGGbBBwYYQ2KBW0YaC/ZdsKvgvWWuCj2mDfb4jc3+oplF6mGdUEthQeBvUiXHl+Iie7kkamAQ2FN8G9W5caoWVa8bVm540MAlsWAEbqhfGtV+zwvO2vlY5FQcmgQ0rYIN6MN46VMqTSxFD5nWw4TPYEBng++TKpXFlzyEwCWxYCRsi20teqejniUbPITAJbFgNGwbGL4b7U1U29hSu6P1lYcPnsEHVjbcODfWTLoIN/3330NRSZst2xKknbBvXzW31u26BSfJGK/TuoYvZWTi1lNeyTo/foMhzuwso9JsGYQqSfNGWuLNwxjf9i9t1nFeaSj+5evMEkLPkfDMGJWK0irkpfe5dx3NGW+Ku4xwbFnIiAa80jW5y9bNvEKb0zBdH9LnViWnj55fkO5EgX7Sin0iwkNNKeKU0F2fJ1deiBxSd6vNo4s+tnxivq+LkOq0kT7QxBT+t5B8v/JOMfJZS7G4T3wzU4i/v62divin7sQEb1PMUpCBxijbF00lG3AROp5w9rK23s4f2XBqn3RiZ58WFqz9OnvFVJo8uGxN769ApJ+6VpnC5Px1vp5zxEriegFg9f+neDUsVxgmI1fqklHNYom3UObVKqbG/d5V2rOG75FjD6J+qkm8a3FKI709HcgLiuC9Pib6IEuB0VKCBDUADG4AGNgANbAAa2AA0sAFoYAPQwAag+QskHCi7F9qMbAAAAABJRU5ErkJggg==" fontId="icewave-wide" filename="icewavewide.ttf" style="width:525px;height:71px;" alt="Icewave Wide"/></a></div>
+					<div class="font-item-dlbutton"><a class="download" href="/font/icewave-wide.html">Download</a></div>
+					<div class="font-item-bar">
+					<span class="font-item-category"></span><span class="font-item-filename">icewavewide.ttf is available to download for Windows & MAC OS X</span>
+					</div>
+				</div>
+				<div class="font-item">
+				<div class="font-item-title"><span class="font-item-name"><a href="/font/lazy-dog-called-mipan-regular.html">Lazy Dog Called Mipan Regular</a></span><span class="font-item-attr" style="background-color:#5B7B9C;">Freeware</span> <span class="font-item-attr" style="background-color:#dc143c;">New</span></div>
+					<div class="font-item-image"><a href="/font/lazy-dog-called-mipan-regular.html"><img id="fontimg" class="fontimg" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAwwAAABXCAMAAACeADLgAAAAwFBMVEUEAgSEgoREQkTEwsQkIiSkoqRkYmTk4uQUEhSUkpRUUlTU0tQ0MjS0srR0cnT08vQMCgyMioxMSkzMyswsKiysqqxsamzs6uwcGhycmpxcWlzc2tw8Ojy8urx8enz8+vwEBgSEhoRERkTExsQkJiSkpqRkZmTk5uQUFhSUlpRUVlTU1tQ0NjS0trR0dnT09vQMDgyMjoxMTkzMzswsLiysrqxsbmzs7uwcHhycnpxcXlzc3tw8Pjy8vrx8fnz8/vz3pXxtAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAZ8klEQVR4nO1d6ULqOhCOioKgAm6goK2CgoiCK6io7/9Wt5N0SSZrWaye2+/HOQZKm5nJLJlMUvKdI0cOCpJ1B3Lk+C3IlSFHjhC5MuTIESJXhhw5QuTKkCNHiFwZMsdkbVgqXN5Us+7HcnF71sq6C6mRK0PWOCsRiv5m1j1ZCja84J/JRTegqPn6x/QhV4aMcUNiXGfdlyVgk2x9N+5rEUlbo6w7lAaiMozO/jFn/evx6YMJ3SqX/hFtWCdkv5boNznsZd2jFBCUwRuSYVYd+Z+iG5rP6hdoxd+PlMKYj/QH75dAG9n5Q+ZVUIbPoPNeRh35f+Is4Pgp+/Mu0IZxI9vuLIwRU4XSjQetzvRvuTtBGd6Cvhez6sn/EmuE+JPw7+2A+8eL3Ky6fZG1MhWpLpxG3Wj1g1Yn0x6lgaAMJ0HXK1n1BKPaqvz+eNMbmds2XAcThrgRxNu+ky2qj59vFB8/EnKZ7vFLRyUYQeO7pP0StPd/4sFpGa+EoAybv0aP767Bw5Lx/tsPpiOKG3cH6fRvVCJbprYV9wGR8SOfgsaey1NhevEgfdwLPq2levrycQBzZv6DQfDB7eqfm5rxSgjKcBT0/Gzxey6Mo0KSjuif/Mwzn16nLP2xNrFfHOEj+EHD0LZiN/jBa9zaD9TfQfk/KF88/DH49Z8YeCZ0sDKAgp+v/rmpGa+EoAwgmt2Fb7kw7omAyxSjc17cPibPa344/6yFrAdu21HgWX7mllCiykCu8Mdl+PQl1dOXDkkZvof4g5UgPeNVEJRhQ8XjH8cZlfXj0cbdwz4EBKS78kn9Np8aJ/fOv/tAoxe37YCguhZrQ+Cc1u2/adBeSqE4zWrW+U/OXjdSdWZxyMpwvhSbbUN6xqsgKMPTr0h1v4NQZ+zv4hY0Civm5jULyK4f3r4Gz9Ou+wiCMH3b0HZ9djQBcBs5Hu2ujy78pJ/y6aiJT3bSdWZhSHMGGm18rvy5czBeAUEZwNn8UIhuAHX3cTd2weC1vVU+kGpf/22OZ1SDH64Z2g7wLuHpW+zhYI3e7L9hfgwJ/1XyF16TPKfrzMKQlaG1lGFqwxyMV0BQBsgSq3J2P4sHEGqS4W01VzwHu19gYoKDqlRBFsOIasOQ5ZSCOKls/0mTjntULMCSDsJI7J0cpOzMoqhIytBYyjC1Yg7GK27CNxo/osU2jGClxkvalXEQE6wuSwJRO5fRSYcaWifDbRd4zDPR4CyICkv2XxyyuY1QE/rEPhunffpycSspA8R0LvniBTEP4yUIylDFM7BsMOBXor7ZcB2s6mGNPlmAj4GN3jK13fAAeQIfJg5QA2DX+zYb+F/8Z2vh7D/bUqAPSRlGC5iaFJiP8QhioV7Q8YuFb7kwhjgEgKXZVa1Gv6sSM84oIDXFbUd8gkaScpXG3PYUxj4b9wX+s53AK8ycVGmVKErKUFxxkBtiTsaLEEu4f4cyTPHw7KzOY0F0MZ1/IeMZdRW3XVHcoaP7oOgU+56CIyFCtQDMU/fAO2S7aNqQlKHyM9HGvIwXICnDD0x2bAjiv3fxE7f8+zwAI7vAQlUbdQy3nTGiEwf/1MlPQTr2XYzuIClbuXJLRq0QVUkZXhZjsCvmZjwPURl8FIhaMeq8vO0uubbPk6PMvWCceMt9CgPYrRTFbRK5QQDX/ja0U2DbJ4roR4mAHeSoG8y1vfijwFzsUA+6oGdfUKCepAz3PxO6mRnvSJWkDCniu8n2jAlwutQUVAPPDb+/r8iKymmviXtpoorcwLEIqXzcToNO03UODOHQSx00IvrkjAYjvUVyAd9LEaikDOtO+bGFYWC8O1WiMtRSZGtH52MSY5k7OCD8RTWZG7zglwhv7GzJ1eSWCenyV+F2KjTCibE17Ac92G34XEQF4VWRGrPHuR+/FIH6SBkaC3XJHVrGp6FKVIaxuzJshJWloXO/s//CFYplWIhmVrEA8uIcZGvIDQbhlL8Mt1Pii9781HYZbAPapdXRYY6tWmMFLAVpKc4dyxHoGCnD9lKnMTf3umIVHeNTUSUpg+MCyQm9+/h4wxvdQXXAErVf4QZacuS0FGwRUnNKzOvIDW7QRzfsK37ujDtabWebcL7RayA0CtMdUL0NBSwztEKTAlqB3jfTbCnpIwv9HHB4aVXH52IdaaeWLC1oGJ9umIrKUHJVBloyUavTgTQKnlJbYkZvV9ZgWMtJudreu3WQYdMxIacl9xit+eJ2iOLm/dqTy4PgBsEtLNduMoWZxpPtnVCpA/voOz1GgpbCzXR1dgVRGWCHzLv2YjNbZAl2xUWYR24iqWZ8ymE6nzIAjaQdlgMEFqq5zNktzJZR4WhLpQzVD71RvwHvuG6rzAEdc8mB68mF6jj+Stym2KXVR6RtHuJM8lQZbFsqjpjv/IqsRicacsLGuQBe3bHUTE9hOV3t5qGgDB6IQTc2zGxRSdAXQ64SFzsrGZ92mErK4LJ0fks9jhe26gtkUFQAn48YBCUvKGe4OQw+23lT6oMXbtXxLYkiYJZDKZuBXBh9HncpbgeonpIQvt7EVgY1MoSvmTKQQ2NoAb4ziBeKfujYBpH52EYEPaDUlFf5/HxSeEwDhYexvbjdfLMn3naE1PCaPjIxs0UpQajs4JQbso7xaFUwPv0wnUsZYLm0HD/6WBWoHmy/usUFMsC3oXMJYU4tTKAn6xEnZw+yPgwiPlsqQIMY1HcIpgzkwloX/3zcDiS4Q2KUdK7snH1/RWNfCuMK0hm7lha7B5z68CM5g3bzWxX3+Rz/6KbtU5ZdSsGCgcJSOFvr0IKotq0qps1PZJ+C5/lqa2xhi1KCE3EUVPivZcY7DVMR8ygDjNbDZBCV8T70g7V1SGeN5ywnWkO+/pvFAXy02OsmrCRNvDmPRopbMDAsGw4HTlsSTeRCX/kEB27TwJaQy7fPkybR1cePwpQqGU/o+H6AS+UN/wk+Q3bA/1tMgRh3IPfABzVdzlHccjxDNW0mCn0WoEZ1gF2L8VjnhlwPdpVr1q3MbFFLEJSBi2rBJMyihsx46zCVISmDfdEGSqxrnL5DeRjHou14N/+cJSkKJUebs70hESAmmlo1OjhgMdSS2dlxyYIZyb0g4klTuE0TPzWaHYKRq8xzj6jNLUGvz8CyjmnRummlCmwDDZ6HUNwOxX0Fj37xgZhRS5YUJ32eY8Kk1kghoUNiS8NrCfsJ06nFmnnKy8xs0UhwJOrWJq8rEuNtw5RdUyzyI20OZYDn8hVMBaEf3M76OSt3FXMh4B1HFwSI/t7uxsbdyTVdUhHmE4/M1sAYsZwPOF2YXBzS4XY1kIjPohIQrUr1PBrxnXvFIfjSPl0F7JSM5ScHkQMAI9Ftxo6BDhduZEEzUgY6nAcvn3cndCch701NFI6oH6E/nh0dBY8aG/r1TZ1tmNV5Ar+gmftY2KKRIKrTgW7HXkiOrc3D9LbRu7umS/7N49ijiMOu7zA6RoHG9HkVAzVO5gfUAJUGsMV+zpWBLTk/eCE4i1s/uCJyFBO6iZiLgmF+ARE3XcAyHyVQcyjlMZO7LWqp1K4nxowNKxnQf5+OzVaVFrrBaO59mQ5meCJRaBFOneL8cEnIFRc5ZaALGGy4fNaEWa6RQghNBpTFMLDwnETGe2TJ3uAuXU2kbGaLVoKiS4NexYEPZrxFbnu8mzyMhpakDNZ1eMh84k3w3GDsHB/XD9hUn4vyr9vuGxAHcowgLqmcir4ADnUPwwT6KMICZXoMkvGpHnFIG5rJvUHPwO2gE82way/qp8H9kzXGDeKy8bYSX9WgE4Hn2LYdEv4MgArXGxr0PyW9TJLXRgpBjnTLNTWScHyZ2d8D97uvm1dUS3W6YGGLVoI1QdXbvOPAjLfILSoDY4gWOdMrQ+DDarzG3QnSjLApuK0RSXFOw6M87Z/xJUSQURSKDo4F5Ziyb+mRWmYzViUOO2nM5J4QcU0EtTeSnlW73LGqCRpgsZPJ8jZxKRzkNtlX12bD88RpXgq82+BHyE7SbyjJSty2kcJeOF5C9rdttVy8yX3W1U5Y2KKV4FQYRjRAjn6KBWGmip0vQsb1242b18H53J6h6qPiGQhhZGtWFqQCvjDM8VXKNmO8Ltdc9XmDBDZOSE3DVCk+YC7ccxvOF41WduKgDBZy34hYV4faMLlh62fVGVGGoKDIXPoQUor2ZO8H0WWb4iiF4o5wkQEMl0gD9rl9YWYKi+HA7sTdNadkvhJd6GoPvTGzRS/BHX5QVejXURSFBWGmip08dYiDaEkZbDtJgcFCsQSdj+EtQVA5xt+pFkkPthxb9g8NpdURsIRJDH0oKcs55+qqzOqE2UpjQTpcatNMC7mbyHah9izq6u1z8MVUzqf3ApmVuEHTd1rA1K+cAyeS2ARC/DiQhgHAlVTFSUkzhez0vviHEI0Y301VT5RBv1RiZotegrBk7UUNOrpj8rAgHKiqScv8qZUB7LLQe+qtcCB5Ijs4xk8wXTXzOVmHkisWjspvEWnaCzOueGYV9GfnqRwKxEgNWtFUwkJuWBjxrWmXmHmafEHYXVLscamLNh5W2h2Kp4syC0Js876A8i0ZuofJtPmaY7GZwhbjYyTLM2IJPbm3culzMRa2aCW4xdPD0utRTIkF4UCV3D1JGfRlVQyPyC53aJ9w1XEb5eAew0kx823mBYiptPlswC9rStHhN6U07lSc270p2XaxEfPaVng3E7kw/eMjLbENNq7wtXfpw2+mqqXYoRjZgm44nO/ZIzr3eiQYRBiZifmDeekopiqeiZopZMoQZy/0AVoIsNDdt0b1bazXaxtbtBKsc6oYamkUL2NBOFAl1wanVoYuGvnslGDkElsE3egiHMHM95nnYCWceIb5nlCsK4XVbc4OsGMWyfjFfubt2L6xz0IuJPr5SEtsRwE3YF+VWaGJS64N1s5h3V6xFzAEEJ/UskHyPYmLuZqvKUeVmcJb2opHtfUUpJfoghYc7lRWzn9sbNFK8IVTxXCmHukGFoSZKqoMcrgnKYNtZwmu2GAHuaNAF3oqFMDA+slWTCYxlqH5uBNiTXdbMcTLvAmkm4kfW8ocrYipPSixkAuhKZ/AE9utWOZd9UQdpMsFajBKXDbngA6ptVisaAQTlISkYByP4r9i72ymkJ1NdsR/azyS5SzWlioYvqEqIrayRSdBzsZWx2zDTtQzLAgzVbQHnvRcaXOPTRmQUdpgVIm5UK8vZUchg1YZReUxprDTIzjUfxe2vvcVU7MtwofKxasjag9VlYwCHMoxLOSeETFsENsQzvQL3faxboMV9JDLpF4QtxoWvTLAN2LeLbE7jVhRLvnHmimkq8CcRs0sfr3DuQ7IlKmCQytbtBLsx4YQslZgciM3iAVhpgqUQVGqIymD5SimKnpoWIgrLhlfycKCuVwJPGfpQitJBlGe8IF4dAxRFKNCL+T1tQfeX6hQthbq2cjlMuaK9ohYluHXhdHqwVKQy/H70CvNXifBrUJuiQtUQs55MEhjui0U0libi77Lln2tFU4ZqADG8oi3siUGlmA5UsxeMCb6Pc6vIkFYqGoRZdZOOhDAQRk44wWpQQIyFGbubcUoDI9ELFVg9c80r5WOYINpU7KuoKxq2FcOe+tbufasG8Ns5HaQXFG7aanFbgoduFLpuQojvTIITwTDyn0XSNe/27inq6/x7NFCIVUGrlPXloWGD14Zvl8gXSRvXrexJQaW4E3kC0ArbkbciEeMt1AFvVT0QDoqxiYNcaiC7XndREOxonpUj56WW+vQkWsqLJc28kwF+w1kSkmxZ6WIorJ/LWBKacyaW8k9QJqL2gGpvmGPtViW6R3alDfCiGinsTs8s14FtoTLrhRcH80UUmXgMldfRLGjjEND7FpHeZKthS0JsATBF8ACyRX1bfxpqFgQZqqKarMjnahnU4YSH7OAt5qOhFX/bxYryoNw9HDZPoXAfo8YZ9AHRMz+Aw18nsCXZ71QMqOYeB4QSwju8HIWC7n4nYSoLZxtFKFzHPk5iAiTirkHwi2FGWFQhn1evY6FyDiqrEA7QMwUdgQ3whYyTEvkON3UgmLRSzTyLWxJIElwnfYGKg39A2HEY0GYqeqpwguFMthmlDv8uLumwx5sORcZjsbm9/SdmA3gpzhCvcAxlPi7KTJeYEAU9WPgDI3ZIjFnq4SF3Ap6MmorfOTkNAkcYOTE8XixpN0WJvVbrwxCPcaxmGwPdzTMxNeymCmkysDtWbwyWzJqq4SuNSBd3BX9r4UtCSQJwjqKP/RDHeHYgAVhpqqhZqB0CrdNGeB0FS/8G3StzZwOZ2tgrmxarYBfGY7S2RVNEVgRYbY1lGOwgVq9RsS2pPGonA52Tkvx7MpCbgtFAbi9Q9B+7heIXOPc+jjxDF5brdEqGJQBpglx7udVpB9mkV9POD4xU0izSdzohxSmcY4vnSlB9/GVxJ2mFrYkv5Uk+Bw6N6oi3EsZMOPNVE2IcglfUAZ4tu3oFJjDhP6sWmCOB71QC2qvdgPH9bVTq6lej9bDw1sE2J6EdcUx3iP7Km0wgTJW5QGlUBH6ZsonnSgCugokHuPowkLuB/K3uA2GgcsW9GiRQRLMzuKg3oNvuo4vVzAoA9iOuL7hXLRtX0qbYaYQwg9+OnZgU4aC1DX6MhZfyKZb2JJAkuATOx+PXdtMzAdmvJmqqtoeSy8rsSlDKzFg+6GGim8qouuL9Ve2+VNZ+lMzBic3gsjWCY77QVnEgBOW75UFd3TObiII6gmbgtdvXIMPTlyThdwi8oK4DesrseaM6lSS8XkN3PBsgV8oWSbzCfTKAMMstkAP4mUnRHWknJlC/CqeHrG8gnFH0TXYu1gTUt9mtiSQJfg0I/76RvysKKmGGW+makSUp0FJymA9k/o5qpeGlS66PxycTpLpeyAJxkqzfGjMrIFti0NnuFnXE76f+ChHDPJXl3qCN64ZRxhM5teT+4/WqFzGXJhmJreHno3bbLVnD2xpZa2ZOPgQYM+mDy8nA9BApRtVQ68Md4Rb0twV8wO7Cj9oo7CHh0TNUmO+rsr6QvAmvAXDzJYESgl60R/vSWpVYrxZbkQ58xGUYeKiDA/MDo8gAmUbricCLdEhLkFn9tQO9dFYp3zOOeIODBJ8sMmp6HHOfCJX7lHQIl/zNtYGDP79MDop3tO9kWSdV2EzufA3eU5GGG5HlcalQvim6aa4+M7themneBmhXhkgjIkDgIk/xiNQcWKtkUIPs3Bm2dBQVi6BvOLbmNkiXKWX4EEtdqYS481yu9hT5dwlZbCuhlQh63F9D8UeYSAIDiVJ8IQ5i9pg19PcwXyCzXGita2+ymS0gtE/jq3FJrBTWUi5S/th3rLLdl0WNnsfG/Xo4HKRTWZyq4zY2OXi9rew3YWULpBV9aJTYshlmje/E+2im1jd/SIYCQh5FMWuZgq7KLq+q5nNy7E6+N/D9Q9GtoSwSrDqxX9hxtuGqQqSMtgz3XEc5Md7R/nlCZh/lk6PDL60blzFBFVmf33Q8xXkG4G96LKxc0unXsrc1S2batlelMELBezzg4cuMJNLn8+dSILb32GmJMB4/wrfO9CGNeqNZukO3CfaihbJknPoaXTISOEJeU71zsS6prp8d4BWdIxsoXCUIIPEeMswVUGaMzgs+7AzMkkh9us1/imT7W3LMipYY0/77X502MgG+IW+KuQHc1o7rW/fsxoPZQVJNSwKNG8kCnDhJ6pQuFHosJncL5Q3xO0A3t3F2vaL7oBBr/Pymfa4Nb0yQP5FJ/GRTlGMFKY8Q/vT+eUBZrakkCCDxHiz3FSQUqsO7+6gcdh4LzEYXfs2CB4Qu+qtzZAFUY1XGKRjZSA9mvHGXB0wRAcU2s3aQTjLKb2rz2i2kHuwLUoLt1cBX7939tBQBe5r5LSoQHl4O6lO7TbAXYIMmPHpqZJWoJ1edvHx0uFN6Gm69yJWjOrehBjyfJ/OrJS7w76j1wFSdNUj+I06SKMLSlC8qtc3DYu/i5G7Avj6A5/WDROyvrYOc4kUjlxfC2ZBKgmqkZYqqYSbncVRrey+XZy/bp0OyuXB6dZe3ajtlcIwzfQPJnL667mo5VEfPtxR5+DPNj3l1+wElsu5X1dgREpyVwBfv/ny3TB8Cq4vlcmewlVI0EqVqAwBt6ZHN3uX4hlLFEt8cY5RGbxoJzh5Nr/AZnKgPF2d4Z1OJdbVrw75+/D1BS2QmdYtuu+kerVptshCgqIyXMpKEGGRt0giPBk9w/fHXmAUSluLvCUOArH+RDxn519CTf8WRHEBX8S6a1ls9shEgqIyfGEVGDe7z8P1x/e9tzQv9rLg06wMkGBZ8M3BMPe6otOPud/396tR00+6oIJXl6c9/TvKkIkERWUo0sNo+sPB/fbRRqW3RAXgsWmcQC8BsLGpzZJjlo17fxT9kpYuWEzQhVB7f0YZspEg3rZULU68VT8Tbc1dPmAHyhkLx1K+FvEfwExTnPJN16HctltmjmwkaNzDtyIMVz0rCtft3gwRw7+Lj3dt/nDX8eWm2SMbCWagDKDuTvve50aTZYivbXOT/xt6TodX/gZkI8GfV4YOrLIvkiqyg7BwoGk51uT/h7L1feu/BNlI8AeVoVMoTQ+faVHriqdx7An8eVY5GFZfKbIcZCPBH1SG3ThhWzK/83th9Ok2UNjVkWKPQI5fhGwk+JNh0n2oC81VE0jfj3zgL/ll7Tl+DtlI8EfnDL3t68fy8eZK06oAWHjqQ6XfH4mQc2BkI8EsUqurR1jf9GcKcXJgZCLBf1MZqnTXz+FfmS7mkJCJBP9NZfj21g4Lryn3aOX4TchCgv+oMuTIkR65MuTIESJXhhw5QuTKkCNHiFwZcuQIkStDjhwhcmXIkSNErgw5coT4D96bKW4VhhNTAAAAAElFTkSuQmCC" fontId="lazy-dog-called-mipan-regular" filename="LazyDogCalledMipan-Regular.ttf" style="width:780px;height:87px;" alt="Lazy Dog Called Mipan Regular"/></a></div>
+					<div class="font-item-dlbutton"><a class="download" href="/font/lazy-dog-called-mipan-regular.html">Download</a></div>
+					<div class="font-item-bar">
+					<span class="font-item-category"></span><span class="font-item-filename">LazyDogCalledMipan-Regular.ttf is available to download for Windows & MAC OS X</span>
+					</div>
+				</div>
+				<div class="font-item">
+				<div class="font-item-title"><span class="font-item-name"><a href="/font/econosans-reduced-76-bold-italic.html">ÃconoSans Reduced 76 Bold Italic</a></span><span class="font-item-creator"> by <a href="https://www.ingofonts.com" rel=nofollow>Ingo Zimmermann</a></span><span class="font-item-attr" style="background-color:#5B7B9C;">Personal use</span> <span class="font-item-attr" style="background-color:#dc143c;">New</span></div>
+					<div class="font-item-image"><a href="/font/econosans-reduced-76-bold-italic.html"><img id="fontimg" class="fontimg" src="data:image/png;base64,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" fontId="econosans-reduced-76-bold-italic" filename="EconoSansReduced-76BoldItalic.ttf" style="width:1150px;height:78px;" alt="ÃconoSans Reduced 76 Bold Italic"/></a></div>
+					<div class="font-item-dlbutton"><a class="download" href="/font/econosans-reduced-76-bold-italic.html">Download</a></div>
+					<div class="font-item-bar">
+					<span class="font-item-category"></span><span class="font-item-filename">EconoSansReduced-76BoldItalic.ttf is available to download for Windows & MAC OS X</span>
+					</div>
+				</div>
+				<div class="font-item">
+				<div class="font-item-title"><span class="font-item-name"><a href="/font/monoir.html">Monoir</a></span><span class="font-item-attr" style="background-color:#5B7B9C;">Personal use</span> <span class="font-item-attr" style="background-color:#dc143c;">New</span></div>
+					<div class="font-item-image"><a href="/font/monoir.html"><img id="fontimg" class="fontimg" src="data:image/png;base64,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" fontId="monoir" filename="Monoir-Regular.ttf" style="width:278px;height:71px;" alt="Monoir"/></a></div>
+					<div class="font-item-dlbutton"><a class="download" href="/font/monoir.html">Download</a></div>
+					<div class="font-item-bar">
+					<span class="font-item-category"></span><span class="font-item-filename">Monoir-Regular.ttf is available to download for Windows & MAC OS X</span>
+					</div>
+				</div>
+				<div class="font-item">
+				<div class="font-item-title"><span class="font-item-name"><a href="/font/schwarzenberg-italic.html">Schwarzenberg Italic</a></span><span class="font-item-creator"> by <a href="https://www.coroflot.com/vladimirnikolic" rel=nofollow>Vladimir Nikolic</a></span><span class="font-item-attr" style="background-color:#5B7B9C;">Freeware</span> <span class="font-item-attr" style="background-color:#dc143c;">New</span></div>
+					<div class="font-item-image"><a href="/font/schwarzenberg-italic.html"><img id="fontimg" class="fontimg" src="data:image/png;base64,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" fontId="schwarzenberg-italic" filename="Schwarzenberg-Italic.ttf" style="width:457px;height:69px;" alt="Schwarzenberg Italic"/></a></div>
+					<div class="font-item-dlbutton"><a class="download" href="/font/schwarzenberg-italic.html">Download</a></div>
+					<div class="font-item-bar">
+					<span class="font-item-category"></span><span class="font-item-filename">Schwarzenberg-Italic.ttf is available to download for Windows & MAC OS X</span>
+					</div>
+				</div>
+	
+			<div class="viewAllItems"><a href="/fonts">All New Fonts</a></div>
+			<div style="display:table; text-align:center; margin-bottom:20px;">
+			<script type="text/javascript"><!--
+			google_ad_client = "ca-pub-7421643372689437";
+			/* FontsAddict Horizontal 728x90 */
+			google_ad_slot = "7738492966";
+			google_ad_width = 728;
+			google_ad_height = 90;
+			//-->
+			</script>
+			<script type="text/javascript"
+			src="//pagead2.googlesyndication.com/pagead/show_ads.js">
+			</script>
+			</div>
+			</div>
+			<div id="clr"></div>
+			<div id="content-bottom"></div>
+		</div>
+		<div id="clr"></div>
+		<div id="footer">
+			<a href="/">Home</a> | <a href="/contact">Contact</a> | <a href="/privacy">Privacy Policy</a>
+			<div class="copyright"> 
+			© Copyright 2012 - 2025 FontsAddict. 
+			</div>
+		</div>
+	</div>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"version":"2024.11.0","token":"d99abda26a1c40c7a04ca33ac332744a","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
