@@ -1,10 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { View } from 'react-native';
+import * as SplashScreen from 'expo-splash-screen';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
-import SplashScreen from './src/screens/SplashScreen'; // Importar el SplashScreen
 
-// Importar tus pantallas
+// Importa el nuevo componente animado
+import AnimatedSplashScreen from './src/screens/AnimatedSplashScreen';
+
+// Tus pantallas existentes
 import HomeScreen from './src/screens/HomeScreen';
 import DetailScreen from './src/screens/DetailScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
@@ -14,12 +18,14 @@ import NotificationsScreen from './src/screens/NotificationsScreen';
 import CanvasScreen from './src/screens/CanvasScreen';
 import DiagramListScreen from './src/screens/DiagramListScreen';
 
+// Prevenimos que la splash nativa se oculte sola
+SplashScreen.preventAutoHideAsync();
+
 const Stack = createNativeStackNavigator();
 
-// Componente separado para manejar las opciones de navegación que requieren el tema
 const MainNavigator = () => {
     const { theme } = useTheme();
-
+    // ... Tu configuración de navegación existente ...
     return (
         <NavigationContainer>
             <Stack.Navigator
@@ -28,7 +34,7 @@ const MainNavigator = () => {
                     headerStyle: { backgroundColor: theme.card },
                     headerTintColor: theme.text,
                     headerTitleStyle: { fontWeight: 'bold' },
-                    contentStyle: { backgroundColor: theme.background }, // Fondo global
+                    contentStyle: { backgroundColor: theme.background },
                 }}
             >
                 <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'AtomOss' }} />
@@ -45,18 +51,45 @@ const MainNavigator = () => {
 };
 
 export default function App() {
-    const [isAppReady, setAppReady] = useState(false);
+    const [appIsReady, setAppIsReady] = useState(false);
+    const [showAnimation, setShowAnimation] = useState(true); // Estado para controlar la animación
 
     useEffect(() => {
-        setTimeout(() => {
-            setAppReady(true);
-        }, 3000); // Muestra el splash por 3 segundos
+        async function prepare() {
+            try {
+                // Aquí cargas fuentes, datos de usuario, etc.
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Simulación de carga
+            } catch (e) {
+                console.warn(e);
+            } finally {
+                setAppIsReady(true);
+            }
+        }
+        prepare();
     }, []);
 
-    if (!isAppReady) {
-        return <SplashScreen />;
+    const onLayoutRootView = useCallback(async () => {
+        if (appIsReady) {
+            // Ocultamos la splash nativa (la imagen estática)
+            // Esto revela INMEDIATAMENTE nuestro componente <AnimatedSplashScreen />
+            await SplashScreen.hideAsync();
+        }
+    }, [appIsReady]);
+
+    if (!appIsReady) {
+        return null;
     }
 
+    // Si la app está lista pero la animación no ha terminado, mostramos la animación
+    if (showAnimation) {
+        return (
+            <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+                 <AnimatedSplashScreen onFinish={() => setShowAnimation(false)} />
+            </View>
+        );
+    }
+
+    // Cuando termina la animación, mostramos la App real
     return (
         <ThemeProvider>
             <MainNavigator />
