@@ -58,7 +58,7 @@ export default function App() {
         async function prepare() {
             try {
                 // Aquí cargas fuentes, datos de usuario, etc.
-                await new Promise(resolve => setTimeout(resolve, 1000)); // Simulación de carga
+                await new Promise(resolve => setTimeout(resolve, 4000)); // Simulación de carga
             } catch (e) {
                 console.warn(e);
             } finally {
