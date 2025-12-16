@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
+import SplashScreen from './src/screens/SplashScreen'; // Importar el SplashScreen
 
 // Importar tus pantallas
 import HomeScreen from './src/screens/HomeScreen';
@@ -44,6 +45,18 @@ const MainNavigator = () => {
 };
 
 export default function App() {
+    const [isAppReady, setAppReady] = useState(false);
+
+    useEffect(() => {
+        setTimeout(() => {
+            setAppReady(true);
+        }, 3000); // Muestra el splash por 3 segundos
+    }, []);
+
+    if (!isAppReady) {
+        return <SplashScreen />;
+    }
+
     return (
         <ThemeProvider>
             <MainNavigator />
