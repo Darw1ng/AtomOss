@@ -109,6 +109,18 @@ export default function CanvasScreen({ route, navigation }) {
                             }
                             setConnectingNodeId(null);
                         }
+                    } 
+                    // --- NUEVA LÓGICA DE ELIMINACIÓN INDIVIDUAL ---
+                    else if (toolRef.current === 'delete') {
+                        const newNodes = diagramRef.current.nodes.filter(n => n.id !== tappedNode.id);
+                        const newConnections = diagramRef.current.connections.filter(
+                            c => c.from !== tappedNode.id && c.to !== tappedNode.id
+                        );
+                        updateDiagram({ 
+                            ...diagramRef.current, 
+                            nodes: newNodes, 
+                            connections: newConnections 
+                        });
                     }
                 } else {
                     panStateRef.current.isPanning = true;
@@ -239,26 +251,34 @@ export default function CanvasScreen({ route, navigation }) {
             </View>
 
             <View style={[styles.toolbar, { backgroundColor: theme.card }]}>
+                {/* Botón Añadir */}
                 <TouchableOpacity style={styles.toolButton} onPress={addNode}>
                     <Plus size={24} color={theme.primary} />
                     <Text style={[styles.toolText, { color: theme.text }]}>Añadir</Text>
                 </TouchableOpacity>
 
+                {/* Botón Mover */}
                 <TouchableOpacity style={styles.toolButton} onPress={() => setTool('select')}>
                     <Pointer size={24} color={tool === 'select' ? theme.primary : theme.textDim} />
                     <Text style={[styles.toolText, { color: tool === 'select' ? theme.primary : theme.textDim }]}>Mover</Text>
                 </TouchableOpacity>
 
+                {/* Botón Unir */}
                 <TouchableOpacity style={styles.toolButton} onPress={() => setTool('connect')}>
                     <Share2 size={24} color={tool === 'connect' ? theme.primary : theme.textDim} />
                     <Text style={[styles.toolText, { color: tool === 'connect' ? theme.primary : theme.textDim }]}>Unir</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.toolButton} onPress={handleClear}>
-                    <Trash2 size={24} color={theme.danger} />
-                    <Text style={[styles.toolText, { color: theme.danger }]}>Limpiar</Text>
+                {/* --- BOTÓN ELIMINAR MODIFICADO --- */}
+                <TouchableOpacity 
+                    style={styles.toolButton} 
+                    onPress={() => setTool('delete')}
+                >
+                    <Trash2 size={24} color={tool === 'delete' ? theme.danger : theme.textDim} />
+                    <Text style={[styles.toolText, { color: tool === 'delete' ? theme.danger : theme.textDim }]}>Eliminar</Text>
                 </TouchableOpacity>
 
+                {/* Botón Guardar */}
                 <TouchableOpacity style={styles.toolButton} onPress={() => {
                     saveDiagram(diagramRef.current);
                     Alert.alert("Guardado", "Tu mapa mental ha sido guardado.");

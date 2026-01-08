@@ -65,10 +65,10 @@ export default function DiagramListScreen({ navigation }) {
                 contentContainerStyle={styles.grid}
                 ListHeaderComponent={
                     <TouchableOpacity 
-                        style={[styles.itemContainer, styles.addButton, { backgroundColor: theme.primary }]}
+                        style={[styles.addButton, { backgroundColor: theme.primary }]} // Eliminamos styles.itemContainer
                         onPress={handleCreateNew}
                     >
-                        <Plus size={40} color="white" />
+                        <Plus size={24} color="white" /> 
                         <Text style={styles.addButtonText}>Nuevo Mapa</Text>
                     </TouchableOpacity>
                 }
@@ -100,13 +100,23 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     addButton: {
+        height: 55,                 // Altura reducida y fija
+        margin: 10,                 // Margen para que no toque los bordes
+        borderRadius: 12,           // Bordes redondeados
+        flexDirection: 'row',       // Icono y texto uno al lado del otro
         justifyContent: 'center',
+        alignItems: 'center',
+        elevation: 4,               // Sombra para Android
+        shadowColor: '#000',        // Sombra para iOS
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 2,
     },
     addButtonText: {
         color: 'white',
         fontSize: 16,
         fontWeight: 'bold',
-        marginTop: 10,
+        marginLeft: 10,             // Espacio entre el icono y el texto
     },
     deleteButton: {
         position: 'absolute',

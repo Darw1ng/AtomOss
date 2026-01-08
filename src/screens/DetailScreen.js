@@ -37,6 +37,32 @@ export default function DetailScreen({ route, navigation }) {
     const [penColor, setPenColor] = useState('#000000');
     const signatureRef = useRef(null);
 
+    const [fullScreenImage, setFullScreenImage] = useState(null); // Para ver fotos en grande
+    const [editingDrawingUri, setEditingDrawingUri] = useState(null); // Para saber qué dibujo estamos editando
+
+    // Función para manejar clics en imágenes/dibujos desde la Vista Previa
+    const handleMediaPress = async (uri, altText) => {
+        if (altText === 'Dibujo') {
+            try {
+                // 1. Leer el archivo actual como base64
+                const base64 = await FileSystem.readAsStringAsync(uri, { encoding: 'base64' });
+                setEditingDrawingUri(uri); // Guardamos la URI original para reemplazarla luego
+                setPenColor('#000000');
+                setIsDrawing(true);
+                
+                // 2. Cargarlo en el canvas (necesita el prefijo data:image)
+                setTimeout(() => {
+                    signatureRef.current?.fromDataURL(`data:image/png;base64,${base64}`);
+                }, 500);
+            } catch (e) {
+                console.error("Error al cargar dibujo para editar", e);
+            }
+        } else {
+            // Si es una foto normal, abrir en pantalla completa
+            setFullScreenImage(uri);
+        }
+    };
+
     const markdownStyles = useMemo(() => ({
         body: { color: theme.textDim, fontSize: 16 },
         heading1: { color: theme.primary, fontWeight: 'bold', marginVertical: 10 },
@@ -54,9 +80,24 @@ export default function DetailScreen({ route, navigation }) {
     }), [theme]);
 
     const markdownRules = {
-        image: (node, children, parent, styles) => (
-            <Image key={node.key} style={styles.image} source={{ uri: node.attributes.src }} resizeMode="contain" />
-        ),
+        image: (node, children, parent, styles) => {
+            const { src, alt } = node.attributes;
+            return (
+                <TouchableOpacity 
+                    key={node.key} 
+                    onPress={() => handleMediaPress(src, alt)}
+                    activeOpacity={0.8}
+                >
+                    <Image style={styles.image} source={{ uri: src }} resizeMode="contain" />
+                    {alt === 'Dibujo' && (
+                        <View style={styles.editBadge}>
+                            <PenTool size={12} color="white" />
+                            <Text style={styles.editBadgeText}>Editar dibujo</Text>
+                        </View>
+                    )}
+                </TouchableOpacity>
+            );
+        },
     };
 
     const insertMarkdown = (prefix, suffix = '') => {
@@ -155,11 +196,17 @@ export default function DetailScreen({ route, navigation }) {
         const localUri = await saveDrawingToStorage(signature);
 
         if (localUri) {
-            insertMarkdown(`\n![Dibujo](${localUri})\n`);
-        } else {
-            console.log("Error al guardar el dibujo");
+            if (editingDrawingUri) {
+                // Reemplazar la URI vieja por la nueva en el contenido
+                const newContent = content.replace(editingDrawingUri, localUri);
+                setContent(newContent);
+            } else {
+                // Es un dibujo nuevo
+                insertMarkdown(`\n![Dibujo](${localUri})\n`);
+            }
         }
         setIsDrawing(false);
+        setEditingDrawingUri(null); // Resetear estado
     };
 
     return (
@@ -292,6 +339,23 @@ export default function DetailScreen({ route, navigation }) {
                     </View>
                 </SafeAreaView>
             </Modal>
+
+            {/* --- MODAL DE IMAGEN FULL SCREEN --- */}
+            <Modal visible={!!fullScreenImage} transparent animationType="fade">
+                <View style={{ flex: 1, backgroundColor: 'black', justifyContent: 'center' }}>
+                    <TouchableOpacity 
+                        style={{ position: 'absolute', top: 50, right: 20, zIndex: 10 }}
+                        onPress={() => setFullScreenImage(null)}
+                    >
+                        <X color="white" size={30} />
+                    </TouchableOpacity>
+                    <Image 
+                        source={{ uri: fullScreenImage }} 
+                        style={{ width: '100%', height: '80%' }} 
+                        resizeMode="contain" 
+                    />
+                </View>
+            </Modal>
         </KeyboardAvoidingView>
     );
 }
@@ -319,5 +383,17 @@ const styles = StyleSheet.create({
     canvasToolbar: { flexDirection: 'row', padding: 15, alignItems: 'center', justifyContent: 'space-between' },
     colorDot: { width: 30, height: 30, borderRadius: 15, marginRight: 10, borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)' },
     canvasToolBtn: { padding: 10, marginRight: 5 },
-    canvasSaveBtn: { width: 45, height: 45, borderRadius: 25, justifyContent: 'center', alignItems: 'center', marginLeft: 10 }
+    canvasSaveBtn: { width: 45, height: 45, borderRadius: 25, justifyContent: 'center', alignItems: 'center', marginLeft: 10 },
+    editBadge: {
+        position: 'absolute',
+        bottom: 10,
+        right: 10,
+        backgroundColor: 'rgba(0,0,0,0.6)',
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 12
+    },
+    editBadgeText: { color: 'white', fontSize: 10, marginLeft: 4, fontWeight: 'bold' },
 });
