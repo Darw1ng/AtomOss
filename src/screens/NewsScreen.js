@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, FlatList, Image } from 'react-native';
 import { useTheme } from '../context/ThemeContext'; // <--- CAMBIO 1: Importar Hook
 
 const NEWS = [
-    {
+    /*{
         id: '4',
         title: '¡Novedades!',
         date: '01 Dic 2025',
@@ -16,21 +16,21 @@ const NEWS = [
         date: '01 Dic 2025',
         image: require('../../assets/kos.jpeg'),
         content: 'Mejoras de contenido, se mejoraron y arreglaron bugs menores.'
-    },
+    },*/
     {
         id: '2',
-        title: 'Version 0.13 Actualizacion de contenido',
-        date: '28 Nov 2025',
+        title: 'Version 0.1 Actualizacion de contenido',
+        date: '22 Nov 2026',
         image: require('../../assets/cuki.jpeg'),
-        content: 'Esto es la version Alpha, unicamente ciertos individuos seleccionados tendran acceso a esta version.      ' + '-Felicidades eres especial'
+       content: 'Esto es la version Alpha, unicamente ciertos individuos seleccionados tendran acceso a esta version, disfurta y sacale el maximo provecho, me encantara leer tus comentarios para mejorar y actualizar la app      ' + '-Felicidades eres especial'
 
-    },
+   },
     {
         id: '1',
         title: '¡Bienvenido a AtomOss!',
-        date: '28 Nov 2025',
+        date: '22 Nov 2026',
         image: require('../../assets/noticia1.png'),
-        content: 'Lanzamiento oficial de la Alpha abierta para la comunidad seleccionada.'
+        content: 'Lanzamiento oficial de la Alpha cerrada para la comunidad seleccionada.'
     },
 ];
 
