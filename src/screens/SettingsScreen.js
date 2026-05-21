@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView, Modal } from 'react-native';
-import { Moon, Globe, Accessibility, ChevronRight, Palette, Check, Sun } from 'lucide-react-native';
-import { useTheme } from '../context/ThemeContext'; // Importamos nuestro hook
+import { View, Text, StyleSheet, Switch, TouchableOpacity, ScrollView, Modal, Share, Alert } from 'react-native';
+import { Moon, Globe, Accessibility, ChevronRight, Palette, Check, Sun, Download } from 'lucide-react-native';
+import { useTheme } from '../context/ThemeContext';
 import { PALETTES } from '../theme/theme';
+import notesService from '../api/notesService';
 
 export default function SettingsScreen() {
     const {
@@ -18,6 +19,22 @@ export default function SettingsScreen() {
     } = useTheme();
 
     const [langModalVisible, setLangModalVisible] = useState(false);
+
+    const handleExportAll = async () => {
+        try {
+            const notes = await notesService.getAll();
+            if (notes.length === 0) {
+                Alert.alert('Sin notas', 'No tienes notas para exportar.');
+                return;
+            }
+            await Share.share({
+                message: JSON.stringify(notes, null, 2),
+                title: `AtomOss Backup — ${notes.length} notas`,
+            });
+        } catch (e) {
+            console.error(e);
+        }
+    };
     const languages = ['Español', 'English', 'Français', 'Português', 'Deutsch'];
 
     const OptionRow = ({ icon: Icon, title, value, onValueChange, type = 'switch', subLabel, rightElement }) => (
@@ -91,6 +108,17 @@ export default function SettingsScreen() {
                 type="link"
                 value={language}
                 onValueChange={() => setLangModalVisible(true)}
+            />
+
+            {/* SECCIÓN DATOS */}
+            <Text style={[styles.sectionTitle, { color: theme.textDim }]}>Datos</Text>
+            <OptionRow
+                icon={Download}
+                title="Exportar backup"
+                subLabel="Todas tus notas como JSON"
+                type="link"
+                value=""
+                onValueChange={handleExportAll}
             />
 
             {/* SECCIÓN ACCESIBILIDAD */}

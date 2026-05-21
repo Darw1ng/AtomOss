@@ -2,7 +2,7 @@ import React from 'react';
 import { Modal, Pressable, View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
 import {
     LayoutGrid, List as ListIcon, Settings, Calendar,
-    Newspaper, Bell, X, ChevronRight, Network
+    Newspaper, Bell, X, ChevronRight, Network, BarChart2
 } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
 
@@ -50,6 +50,7 @@ const MainMenu = ({ visible, onClose, navigation, viewMode, setViewMode, unreadC
 
                     <ScrollView contentContainerStyle={{ paddingVertical: 10 }}>
                         <MenuItem theme={theme} icon={Network} label="Lienzo Mental" onPress={() => navigateAndClose('DiagramList')} />
+                        <MenuItem theme={theme} icon={BarChart2} label="Estadísticas" onPress={() => navigateAndClose('Stats')} />
                         <View style={[styles.divider, { backgroundColor: theme.border }]} />
                         <MenuItem theme={theme} icon={Settings} label="Configuración" onPress={() => navigateAndClose('Settings')} />
                         <MenuItem theme={theme} icon={Calendar} label="Calendario" onPress={() => navigateAndClose('Calendar')} />

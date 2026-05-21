@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal, Pressable, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Share2, Trash2, Pin, PinOff, X, Copy } from 'lucide-react-native';
+import { Share2, Trash2, Pin, PinOff, X, Copy, FileDown } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
 import { NOTE_TINT_PALETTE } from '../constants/tags';
 
@@ -11,6 +11,7 @@ const NoteOptionsMenu = ({
     onDelete,
     onPin,
     onDuplicate,
+    onExport,
     onColorChange,
     isPinned = false,
     noteColor = null,
@@ -79,6 +80,13 @@ const NoteOptionsMenu = ({
                     <TouchableOpacity style={styles.item} onPress={onShare}>
                         <Share2 size={17} color={theme.primary} />
                         <Text style={[styles.itemText, { color: theme.text }]}>Compartir</Text>
+                    </TouchableOpacity>
+
+                    <View style={[styles.divider, { backgroundColor: theme.border }]} />
+
+                    <TouchableOpacity style={styles.item} onPress={onExport}>
+                        <FileDown size={17} color={theme.text} />
+                        <Text style={[styles.itemText, { color: theme.text }]}>Exportar .md</Text>
                     </TouchableOpacity>
 
                     <View style={[styles.divider, { backgroundColor: theme.border }]} />

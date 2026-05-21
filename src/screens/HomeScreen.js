@@ -135,6 +135,26 @@ export default function HomeScreen({ navigation }) {
         );
     };
 
+    const handleExport = async () => {
+        if (!selectedNote) return;
+        const tagLabels = (selectedNote.tags || [])
+            .map(id => PREDEFINED_TAGS.find(t => t.id === id)?.label)
+            .filter(Boolean)
+            .join(', ');
+        const md = [
+            `# ${selectedNote.title}`,
+            tagLabels ? `\n> Etiquetas: ${tagLabels}` : '',
+            `\n${selectedNote.content || ''}`,
+            `\n---\n*Creado: ${new Date(selectedNote.createdAt).toLocaleDateString('es-MX')}*`,
+        ].join('\n');
+        try {
+            await Share.share({ message: md, title: selectedNote.title });
+        } catch (e) {
+            console.error(e);
+        }
+        setOptionsVisible(false);
+    };
+
     const handleDuplicate = async () => {
         if (!selectedNote) return;
         await notesService.create({
@@ -347,6 +367,7 @@ export default function HomeScreen({ navigation }) {
                 onDelete={handleDelete}
                 onPin={handlePin}
                 onDuplicate={handleDuplicate}
+                onExport={handleExport}
                 onColorChange={handleColorChange}
                 isPinned={selectedNote?.pinned}
                 noteColor={selectedNote?.color}
