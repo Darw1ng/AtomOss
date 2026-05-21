@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import {
     View, TextInput, StyleSheet, TouchableOpacity, Text,
     KeyboardAvoidingView, Platform, ScrollView, Modal, Image, SafeAreaView
@@ -32,6 +32,21 @@ export default function DetailScreen({ route, navigation }) {
     const [tags, setTags] = useState(note ? (note.tags || []) : []);
     const [tagModalVisible, setTagModalVisible] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [saveStatus, setSaveStatus] = useState('idle'); // 'idle' | 'saving' | 'saved'
+    const [templateModalVisible, setTemplateModalVisible] = useState(!note);
+    const currentNoteIdRef = useRef(note?.id || null);
+    const autoSaveTimerRef = useRef(null);
+    const initializedRef = useRef(false);
+
+    const todayLabel = new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' });
+    const TEMPLATES = [
+        { id: 'blank',   label: 'En blanco', title: '',                     content: '' },
+        { id: 'meeting', label: 'Reunión',   title: 'Reunión — ',           content: '## Asistentes\n- \n\n## Agenda\n1. \n\n## Acuerdos\n- \n\n## Próximos pasos\n- ' },
+        { id: 'todo',    label: 'Tareas',    title: 'Tareas — ',            content: '- [ ] \n- [ ] \n- [ ] \n- [ ] ' },
+        { id: 'daily',   label: 'Diario',    title: `Diario ${todayLabel}`, content: '## Hoy hice\n\n## Aprendí\n\n## Mañana\n- ' },
+        { id: 'idea',    label: 'Idea',      title: '',                     content: '## La idea\n\n## Por qué importa\n\n## Próximos pasos\n- ' },
+        { id: 'recipe',  label: 'Receta',    title: '',                     content: '## Ingredientes\n- \n\n## Preparación\n1. \n\n## Tiempo\n' },
+    ];
 
     const { wordCount, readTime } = useMemo(() => {
         const words = content.trim().split(/\s+/).filter(w => w.length > 0).length;
@@ -46,8 +61,34 @@ export default function DetailScreen({ route, navigation }) {
     const [penColor, setPenColor] = useState('#000000');
     const signatureRef = useRef(null);
 
-    const [fullScreenImage, setFullScreenImage] = useState(null); // Para ver fotos en grande
-    const [editingDrawingUri, setEditingDrawingUri] = useState(null); // Para saber qué dibujo estamos editando
+    const [fullScreenImage, setFullScreenImage] = useState(null);
+    const [editingDrawingUri, setEditingDrawingUri] = useState(null);
+
+    useEffect(() => {
+        if (!initializedRef.current) {
+            initializedRef.current = true;
+            return;
+        }
+        if (!title && !content) return;
+        clearTimeout(autoSaveTimerRef.current);
+        autoSaveTimerRef.current = setTimeout(async () => {
+            setSaveStatus('saving');
+            try {
+                if (currentNoteIdRef.current) {
+                    await notesService.update(currentNoteIdRef.current, { title, content, tags });
+                } else {
+                    const created = await notesService.create({ title, content, tags });
+                    currentNoteIdRef.current = created.id;
+                }
+                setSaveStatus('saved');
+                setTimeout(() => setSaveStatus('idle'), 2000);
+            } catch (e) {
+                console.error(e);
+                setSaveStatus('idle');
+            }
+        }, 2000);
+        return () => clearTimeout(autoSaveTimerRef.current);
+    }, [title, content, tags]);
 
     // Función para manejar clics en imágenes/dibujos desde la Vista Previa
     const handleMediaPress = async (uri, altText) => {
@@ -141,9 +182,17 @@ export default function DetailScreen({ route, navigation }) {
     };
 
     const handleSave = async () => {
+        clearTimeout(autoSaveTimerRef.current);
         setSaving(true);
-        if (note) await notesService.update(note.id, { title, content, tags });
-        else await notesService.create({ title, content, tags });
+        try {
+            if (currentNoteIdRef.current) {
+                await notesService.update(currentNoteIdRef.current, { title, content, tags });
+            } else {
+                await notesService.create({ title, content, tags });
+            }
+        } catch (e) {
+            console.error(e);
+        }
         setSaving(false);
         navigation.goBack();
     };
@@ -326,8 +375,10 @@ export default function DetailScreen({ route, navigation }) {
                             {isPreview ? <EyeOff color={theme.text} size={20} /> : <Eye color={theme.text} size={20} />}
                         </TouchableOpacity>
                     </View>
-                    <Text style={[styles.wordCountText, { color: theme.textDim }]}>
-                        {wordCount} pal · {readTime} min
+                    <Text style={[styles.wordCountText, { color: saveStatus === 'saved' ? theme.primary : theme.textDim }]}>
+                        {saveStatus === 'saving' ? 'Guardando...' :
+                         saveStatus === 'saved'  ? 'Guardado ✓' :
+                         `${wordCount} pal · ${readTime} min`}
                     </Text>
                     <View style={styles.rightTools}>
                         {note && (<TouchableOpacity style={[styles.deleteBtn, { backgroundColor: theme.danger + '20' }]} onPress={handleDelete}><Trash2 color={theme.danger} size={20} /></TouchableOpacity>)}
@@ -430,6 +481,43 @@ export default function DetailScreen({ route, navigation }) {
                             onPress={() => setTagModalVisible(false)}
                         >
                             <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 14 }}>Listo</Text>
+                        </TouchableOpacity>
+                    </TouchableOpacity>
+                </TouchableOpacity>
+            </Modal>
+
+            {/* --- MODAL DE PLANTILLAS --- */}
+            <Modal visible={templateModalVisible} transparent animationType="fade" onRequestClose={() => setTemplateModalVisible(false)}>
+                <TouchableOpacity
+                    style={styles.tagModalOverlay}
+                    activeOpacity={1}
+                    onPress={() => setTemplateModalVisible(false)}
+                >
+                    <TouchableOpacity
+                        activeOpacity={1}
+                        style={[styles.tagModalBox, { backgroundColor: theme.card, borderColor: theme.border }]}
+                    >
+                        <Text style={[styles.tagModalTitle, { color: theme.text }]}>Elegir plantilla</Text>
+                        <View style={styles.templateGrid}>
+                            {TEMPLATES.map(tpl => (
+                                <TouchableOpacity
+                                    key={tpl.id}
+                                    style={[styles.templateItem, { backgroundColor: theme.background, borderColor: theme.border }]}
+                                    onPress={() => {
+                                        setTitle(tpl.title);
+                                        setContent(tpl.content);
+                                        setTemplateModalVisible(false);
+                                    }}
+                                >
+                                    <Text style={[styles.templateLabel, { color: theme.text }]}>{tpl.label}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                        <TouchableOpacity
+                            style={[styles.tagModalDone, { backgroundColor: theme.card, borderColor: theme.border, borderWidth: 1 }]}
+                            onPress={() => setTemplateModalVisible(false)}
+                        >
+                            <Text style={{ color: theme.textDim, fontWeight: 'bold', fontSize: 14 }}>En blanco</Text>
                         </TouchableOpacity>
                     </TouchableOpacity>
                 </TouchableOpacity>
@@ -544,5 +632,23 @@ const styles = StyleSheet.create({
         borderRadius: 30,
         paddingVertical: 12,
         alignItems: 'center',
+    },
+    templateGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 10,
+        marginBottom: 16,
+    },
+    templateItem: {
+        width: '47%',
+        borderRadius: 10,
+        borderWidth: 1,
+        paddingVertical: 16,
+        paddingHorizontal: 12,
+        alignItems: 'center',
+    },
+    templateLabel: {
+        fontSize: 14,
+        fontWeight: '600',
     },
 });

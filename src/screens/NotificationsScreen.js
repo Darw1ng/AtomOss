@@ -53,8 +53,8 @@ export default function NotificationsScreen() {
                     type: 'alert',
                     title: 'Bienvenido a AtomOss',
                     description: 'Explora las nuevas funcionalidades del lienzo mental y el editor de notas.',
-                    time: 'Hace un momento',
-                    originalDate: new Date().toISOString(), // Asignar fecha actual para que aparezca primero
+                    time: 'Enero 2024',
+                    originalDate: '2024-01-01T00:00:00.000Z',
                 }
             ];
 
@@ -66,6 +66,12 @@ export default function NotificationsScreen() {
         } catch (error) {
             console.error("Error al cargar notificaciones:", error);
         }
+    };
+
+    const handleMarkAllRead = async () => {
+        const allIds = notifications.map(n => n.id);
+        setReadIds(allIds);
+        await AsyncStorage.setItem(READ_NOTIFICATIONS_KEY, JSON.stringify(allIds));
     };
 
     const handlePress = async (id) => {
@@ -93,6 +99,11 @@ export default function NotificationsScreen() {
         <View style={[styles.container, { backgroundColor: theme.background }]}>
             <View style={[styles.header, { borderBottomColor: theme.border }]}>
                 <Text style={[styles.headerTitle, { color: theme.text }]}>Centro de Notificaciones</Text>
+                {notifications.some(n => !readIds.includes(n.id)) && (
+                    <TouchableOpacity onPress={handleMarkAllRead}>
+                        <Text style={[styles.markAllText, { color: theme.primary }]}>Leer todo</Text>
+                    </TouchableOpacity>
+                )}
             </View>
 
             <FlatList
@@ -177,8 +188,9 @@ export default function NotificationsScreen() {
 
 const styles = StyleSheet.create({
     container: { flex: 1 },
-    header: { padding: 20, borderBottomWidth: 1 },
+    header: { padding: 20, borderBottomWidth: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     headerTitle: { fontSize: 18, fontWeight: 'bold' },
+    markAllText: { fontSize: 13, fontWeight: '600' },
     item: {
         marginHorizontal: 15,
         marginTop: 10,
