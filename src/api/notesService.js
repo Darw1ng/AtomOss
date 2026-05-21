@@ -29,6 +29,7 @@ const notesService = {
                 id: Date.now().toString(),
                 title: noteData.title,
                 content: noteData.content,
+                tags: noteData.tags || [],
                 createdAt: new Date().toISOString()
             };
 

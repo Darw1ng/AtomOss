@@ -3,6 +3,7 @@ import {
     View, TextInput, StyleSheet, TouchableOpacity, Text,
     KeyboardAvoidingView, Platform, ScrollView, Modal, Image, SafeAreaView
 } from 'react-native';
+
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 // --- CORRECCIÓN EXPO 54: Usamos el import legacy para tener writeAsStringAsync ---
@@ -12,10 +13,11 @@ import SignatureScreen from "react-native-signature-canvas";
 import {
     Save, Trash2, Bold, Heading, List, Image as ImageIcon,
     Wrench, Eye, EyeOff, X, Italic, Quote, Code, PenTool,
-    Check, Eraser, RotateCcw
+    Check, Eraser, RotateCcw, Tag
 } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
 import notesService from '../api/notesService';
+import { PREDEFINED_TAGS } from '../constants/tags';
 
 // Colores disponibles para el pincel
 const DRAWING_COLORS = ['#000000', '#FF0000', '#44895C', '#3b82f6', '#facc15'];
@@ -27,6 +29,8 @@ export default function DetailScreen({ route, navigation }) {
 
     const [title, setTitle] = useState(note ? note.title : '');
     const [content, setContent] = useState(note ? note.content : '');
+    const [tags, setTags] = useState(note ? (note.tags || []) : []);
+    const [tagModalVisible, setTagModalVisible] = useState(false);
     const [saving, setSaving] = useState(false);
     const [isPreview, setIsPreview] = useState(false);
     const [showToolbar, setShowToolbar] = useState(true);
@@ -133,9 +137,16 @@ export default function DetailScreen({ route, navigation }) {
 
     const handleSave = async () => {
         setSaving(true);
-        if (note) await notesService.update(note.id, { title, content });
-        else await notesService.create({ title, content });
-        setSaving(false); navigation.goBack();
+        if (note) await notesService.update(note.id, { title, content, tags });
+        else await notesService.create({ title, content, tags });
+        setSaving(false);
+        navigation.goBack();
+    };
+
+    const toggleTag = (tagId) => {
+        setTags(prev =>
+            prev.includes(tagId) ? prev.filter(t => t !== tagId) : [...prev, tagId]
+        );
     };
 
     const handleDelete = async () => {
@@ -225,6 +236,40 @@ export default function DetailScreen({ route, navigation }) {
                         value={title}
                         onChangeText={setTitle}
                     />
+
+                    {/* Fila de tags */}
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        style={styles.tagRow}
+                        contentContainerStyle={styles.tagRowContent}
+                        keyboardShouldPersistTaps="always"
+                    >
+                        {tags.map(tagId => {
+                            const tag = PREDEFINED_TAGS.find(t => t.id === tagId);
+                            if (!tag) return null;
+                            return (
+                                <TouchableOpacity
+                                    key={tagId}
+                                    style={[styles.tagPill, { backgroundColor: tag.color + '28', borderColor: tag.color }]}
+                                    onPress={() => toggleTag(tagId)}
+                                >
+                                    <Text style={{ color: tag.color, fontSize: 11, fontWeight: '600' }}>{tag.label}</Text>
+                                    <X size={10} color={tag.color} style={{ marginLeft: 3 }} />
+                                </TouchableOpacity>
+                            );
+                        })}
+                        <TouchableOpacity
+                            style={[styles.addTagBtn, { borderColor: theme.border }]}
+                            onPress={() => setTagModalVisible(true)}
+                        >
+                            <Tag size={12} color={theme.textDim} />
+                            <Text style={{ color: theme.textDim, fontSize: 11, marginLeft: 4 }}>
+                                {tags.length === 0 ? 'Etiquetas' : '+'}
+                            </Text>
+                        </TouchableOpacity>
+                    </ScrollView>
+
                     {isPreview ? (
                         <ScrollView style={styles.previewContainer}>
                             <Markdown style={markdownStyles} rules={markdownRules}>{content || '*Nada por aquí...*'}</Markdown>
@@ -340,6 +385,48 @@ export default function DetailScreen({ route, navigation }) {
                 </SafeAreaView>
             </Modal>
 
+            {/* --- MODAL DE TAGS --- */}
+            <Modal visible={tagModalVisible} transparent animationType="fade" onRequestClose={() => setTagModalVisible(false)}>
+                <TouchableOpacity
+                    style={styles.tagModalOverlay}
+                    activeOpacity={1}
+                    onPress={() => setTagModalVisible(false)}
+                >
+                    <TouchableOpacity
+                        activeOpacity={1}
+                        style={[styles.tagModalBox, { backgroundColor: theme.card, borderColor: theme.border }]}
+                    >
+                        <Text style={[styles.tagModalTitle, { color: theme.text }]}>Etiquetas</Text>
+                        <View style={styles.tagGrid}>
+                            {PREDEFINED_TAGS.map(tag => {
+                                const selected = tags.includes(tag.id);
+                                return (
+                                    <TouchableOpacity
+                                        key={tag.id}
+                                        style={[
+                                            styles.tagPickerItem,
+                                            { borderColor: tag.color },
+                                            selected && { backgroundColor: tag.color },
+                                        ]}
+                                        onPress={() => toggleTag(tag.id)}
+                                    >
+                                        <Text style={{ color: selected ? '#fff' : tag.color, fontWeight: '700', fontSize: 13 }}>
+                                            {tag.label}
+                                        </Text>
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </View>
+                        <TouchableOpacity
+                            style={[styles.tagModalDone, { backgroundColor: theme.primary }]}
+                            onPress={() => setTagModalVisible(false)}
+                        >
+                            <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 14 }}>Listo</Text>
+                        </TouchableOpacity>
+                    </TouchableOpacity>
+                </TouchableOpacity>
+            </Modal>
+
             {/* --- MODAL DE IMAGEN FULL SCREEN --- */}
             <Modal visible={!!fullScreenImage} transparent animationType="fade">
                 <View style={{ flex: 1, backgroundColor: 'black', justifyContent: 'center' }}>
@@ -393,7 +480,60 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 8,
         paddingVertical: 4,
-        borderRadius: 12
+        borderRadius: 12,
     },
     editBadgeText: { color: 'white', fontSize: 10, marginLeft: 4, fontWeight: 'bold' },
+    tagRow: { marginBottom: 10, maxHeight: 36 },
+    tagRowContent: { alignItems: 'center', gap: 6, paddingRight: 4 },
+    tagPill: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderRadius: 20,
+        borderWidth: 1,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+    },
+    addTagBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderRadius: 20,
+        borderWidth: 1,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+    },
+    tagModalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.6)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 30,
+    },
+    tagModalBox: {
+        width: '100%',
+        borderRadius: 16,
+        borderWidth: 1,
+        padding: 20,
+    },
+    tagModalTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 16,
+    },
+    tagGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 8,
+        marginBottom: 20,
+    },
+    tagPickerItem: {
+        borderRadius: 20,
+        borderWidth: 1.5,
+        paddingHorizontal: 14,
+        paddingVertical: 7,
+    },
+    tagModalDone: {
+        borderRadius: 30,
+        paddingVertical: 12,
+        alignItems: 'center',
+    },
 });
