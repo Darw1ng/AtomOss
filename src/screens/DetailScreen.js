@@ -32,6 +32,11 @@ export default function DetailScreen({ route, navigation }) {
     const [tags, setTags] = useState(note ? (note.tags || []) : []);
     const [tagModalVisible, setTagModalVisible] = useState(false);
     const [saving, setSaving] = useState(false);
+
+    const { wordCount, readTime } = useMemo(() => {
+        const words = content.trim().split(/\s+/).filter(w => w.length > 0).length;
+        return { wordCount: words, readTime: Math.max(1, Math.ceil(words / 200)) };
+    }, [content]);
     const [isPreview, setIsPreview] = useState(false);
     const [showToolbar, setShowToolbar] = useState(true);
     const [selection, setSelection] = useState({ start: 0, end: 0 });
@@ -321,6 +326,9 @@ export default function DetailScreen({ route, navigation }) {
                             {isPreview ? <EyeOff color={theme.text} size={20} /> : <Eye color={theme.text} size={20} />}
                         </TouchableOpacity>
                     </View>
+                    <Text style={[styles.wordCountText, { color: theme.textDim }]}>
+                        {wordCount} pal · {readTime} min
+                    </Text>
                     <View style={styles.rightTools}>
                         {note && (<TouchableOpacity style={[styles.deleteBtn, { backgroundColor: theme.danger + '20' }]} onPress={handleDelete}><Trash2 color={theme.danger} size={20} /></TouchableOpacity>)}
                         <TouchableOpacity style={[styles.saveBtn, { backgroundColor: theme.primary }]} onPress={handleSave} disabled={saving}>
@@ -458,6 +466,7 @@ const styles = StyleSheet.create({
     toolBtn: { padding: 10, marginHorizontal: 2 },
     closeBarBtn: { padding: 5, borderLeftWidth: 1, marginLeft: 5 },
     footer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 15, paddingTop: 10, borderTopWidth: 1 },
+    wordCountText: { fontSize: 11, opacity: 0.7 },
     leftTools: { flexDirection: 'row' },
     rightTools: { flexDirection: 'row', alignItems: 'center' },
     roundBtn: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center', borderWidth: 1 },

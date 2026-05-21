@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal, Pressable, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Share2, Trash2, Pin, PinOff, X } from 'lucide-react-native';
+import { Share2, Trash2, Pin, PinOff, X, Copy } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
 import { NOTE_TINT_PALETTE } from '../constants/tags';
 
@@ -10,6 +10,7 @@ const NoteOptionsMenu = ({
     onShare,
     onDelete,
     onPin,
+    onDuplicate,
     onColorChange,
     isPinned = false,
     noteColor = null,
@@ -64,6 +65,13 @@ const NoteOptionsMenu = ({
                         <Text style={[styles.itemText, { color: isPinned ? theme.primary : theme.text }]}>
                             {isPinned ? 'Desfijar' : 'Fijar'}
                         </Text>
+                    </TouchableOpacity>
+
+                    <View style={[styles.divider, { backgroundColor: theme.border }]} />
+
+                    <TouchableOpacity style={styles.item} onPress={onDuplicate}>
+                        <Copy size={17} color={theme.text} />
+                        <Text style={[styles.itemText, { color: theme.text }]}>Duplicar</Text>
                     </TouchableOpacity>
 
                     <View style={[styles.divider, { backgroundColor: theme.border }]} />

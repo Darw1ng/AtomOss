@@ -57,8 +57,7 @@ export default function App() {
     useEffect(() => {
         async function prepare() {
             try {
-                // Aquí cargas fuentes, datos de usuario, etc.
-                await new Promise(resolve => setTimeout(resolve, 4000)); // Simulación de carga
+                // Aquí cargarías fuentes o datos de usuario si fuera necesario
             } catch (e) {
                 console.warn(e);
             } finally {

@@ -135,6 +135,18 @@ export default function HomeScreen({ navigation }) {
         );
     };
 
+    const handleDuplicate = async () => {
+        if (!selectedNote) return;
+        await notesService.create({
+            title: `${selectedNote.title} (copia)`,
+            content: selectedNote.content,
+            tags: selectedNote.tags || [],
+            color: selectedNote.color || null,
+        });
+        fetchNotes();
+        setOptionsVisible(false);
+    };
+
     const handlePin = async () => {
         if (!selectedNote) return;
         await notesService.update(selectedNote.id, { pinned: !selectedNote.pinned });
@@ -334,6 +346,7 @@ export default function HomeScreen({ navigation }) {
                 onShare={handleShare}
                 onDelete={handleDelete}
                 onPin={handlePin}
+                onDuplicate={handleDuplicate}
                 onColorChange={handleColorChange}
                 isPinned={selectedNote?.pinned}
                 noteColor={selectedNote?.color}
