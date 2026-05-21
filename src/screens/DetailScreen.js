@@ -13,7 +13,7 @@ import SignatureScreen from "react-native-signature-canvas";
 import {
     Save, Trash2, Bold, Heading, List, Image as ImageIcon,
     Wrench, Eye, EyeOff, X, Italic, Quote, Code, PenTool,
-    Check, Eraser, RotateCcw, Tag
+    Check, Eraser, RotateCcw, Tag, Maximize2, Minimize2
 } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
 import notesService from '../api/notesService';
@@ -54,6 +54,7 @@ export default function DetailScreen({ route, navigation }) {
     }, [content]);
     const [isPreview, setIsPreview] = useState(false);
     const [showToolbar, setShowToolbar] = useState(true);
+    const [zenMode, setZenMode] = useState(false);
     const [selection, setSelection] = useState({ start: 0, end: 0 });
 
     // Estados para el Canvas
@@ -343,7 +344,7 @@ export default function DetailScreen({ route, navigation }) {
                 </View>
 
                 {/* 2. BARRA DE HERRAMIENTAS */}
-                {showToolbar && !isPreview && (
+                {showToolbar && !isPreview && !zenMode && (
                     <View style={[styles.toolbarContainer, { backgroundColor: theme.card, borderColor: theme.border }]}>
                         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.toolbarScroll} keyboardShouldPersistTaps="always">
                             <TouchableOpacity style={styles.toolBtn} onPress={() => insertMarkdown('**', '**')}><Bold size={20} color={theme.text} /></TouchableOpacity>
@@ -366,6 +367,14 @@ export default function DetailScreen({ route, navigation }) {
                 )}
 
                 {/* 3. FOOTER */}
+                {zenMode ? (
+                    <TouchableOpacity
+                        style={[styles.zenExitBtn, { backgroundColor: theme.card + 'cc', bottom: Math.max(insets.bottom + 10, 20) }]}
+                        onPress={() => setZenMode(false)}
+                    >
+                        <Minimize2 size={18} color={theme.textDim} />
+                    </TouchableOpacity>
+                ) : (
                 <View style={[styles.footer, { backgroundColor: theme.background, borderTopColor: theme.card, paddingBottom: Math.max(insets.bottom, 10) }]}>
                     <View style={styles.leftTools}>
                         <TouchableOpacity style={[styles.roundBtn, { backgroundColor: theme.card, borderColor: theme.border }, showToolbar && { backgroundColor: theme.primary, borderColor: theme.primary }]} onPress={() => setShowToolbar(!showToolbar)}>
@@ -373,6 +382,9 @@ export default function DetailScreen({ route, navigation }) {
                         </TouchableOpacity>
                         <TouchableOpacity style={[styles.roundBtn, { backgroundColor: theme.card, borderColor: theme.border, marginLeft: 10 }]} onPress={() => setIsPreview(!isPreview)}>
                             {isPreview ? <EyeOff color={theme.text} size={20} /> : <Eye color={theme.text} size={20} />}
+                        </TouchableOpacity>
+                        <TouchableOpacity style={[styles.roundBtn, { backgroundColor: theme.card, borderColor: theme.border, marginLeft: 10 }]} onPress={() => setZenMode(true)}>
+                            <Maximize2 color={theme.text} size={18} />
                         </TouchableOpacity>
                     </View>
                     <Text style={[styles.wordCountText, { color: saveStatus === 'saved' ? theme.primary : theme.textDim }]}>
@@ -388,6 +400,7 @@ export default function DetailScreen({ route, navigation }) {
                         </TouchableOpacity>
                     </View>
                 </View>
+                )}
             </View>
 
             {/* --- MODAL DEL LIENZO --- */}
@@ -632,6 +645,17 @@ const styles = StyleSheet.create({
         borderRadius: 30,
         paddingVertical: 12,
         alignItems: 'center',
+    },
+    zenExitBtn: {
+        position: 'absolute',
+        right: 20,
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.15)',
     },
     templateGrid: {
         flexDirection: 'row',

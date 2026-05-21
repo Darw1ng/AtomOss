@@ -3,11 +3,12 @@ import { TouchableOpacity, Text, StyleSheet, View, Dimensions } from 'react-nati
 import { Pin } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
 import { PREDEFINED_TAGS, NOTE_TINTS } from '../constants/tags';
+import { timeAgo } from '../utils/timeAgo';
 
 const screenWidth = Dimensions.get('window').width;
 const cardWidth = (screenWidth / 3) - 14;
 
-export default function NoteCard({ title, content, tags = [], pinned = false, color = null, onPress, onLongPress }) {
+export default function NoteCard({ title, content, tags = [], pinned = false, color = null, updatedAt, createdAt, onPress, onLongPress }) {
     const { theme, mode } = useTheme();
 
     const resolvedTags = tags
@@ -45,6 +46,9 @@ export default function NoteCard({ title, content, tags = [], pinned = false, co
                         ))}
                     </View>
                 )}
+                <Text style={[styles.timestamp, { color: theme.textDim }]}>
+                    {timeAgo(updatedAt || createdAt)}
+                </Text>
             </View>
 
             <View style={[styles.cornerDeco, { backgroundColor: theme.primary }]} />
@@ -82,10 +86,17 @@ const styles = StyleSheet.create({
     },
     footer: {
         marginTop: 4,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
     },
     tagsRow: {
         flexDirection: 'row',
         gap: 4,
+    },
+    timestamp: {
+        fontSize: 9,
+        opacity: 0.7,
     },
     tagDot: {
         width: 7,

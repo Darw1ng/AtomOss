@@ -69,6 +69,20 @@ export default function StatsScreen() {
 
     const maxDay = Math.max(1, ...last7Days.map(d => d.count));
 
+    const streak = useMemo(() => {
+        let s = 0;
+        const cursor = new Date();
+        cursor.setHours(0, 0, 0, 0);
+        while (true) {
+            const dayStr = cursor.toISOString().split('T')[0];
+            const hasNote = notes.some(n => (n.createdAt || '').startsWith(dayStr));
+            if (!hasNote) break;
+            s++;
+            cursor.setDate(cursor.getDate() - 1);
+        }
+        return s;
+    }, [notes]);
+
     const colorStats = useMemo(() =>
         NOTE_TINT_PALETTE
             .filter(t => t.id)
@@ -82,6 +96,21 @@ export default function StatsScreen() {
 
     return (
         <ScrollView style={[styles.container, { backgroundColor: theme.background }]}>
+
+            {/* RACHA */}
+            {streak > 0 && (
+                <View style={[styles.streakBanner, { backgroundColor: theme.card, borderColor: theme.border }]}>
+                    <View>
+                        <Text style={[styles.streakValue, { color: theme.primary }]}>{streak}</Text>
+                        <Text style={[styles.streakLabel, { color: theme.textDim }]}>
+                            {streak === 1 ? 'día de racha' : 'días de racha'}
+                        </Text>
+                    </View>
+                    <Text style={[styles.streakFire, { color: theme.textDim }]}>
+                        {streak >= 7 ? 'Racha semanal!' : streak >= 3 ? 'Vas bien' : 'Sigue así'}
+                    </Text>
+                </View>
+            )}
 
             {/* RESUMEN */}
             <View style={styles.grid}>
@@ -179,6 +208,14 @@ function Section({ title, theme, children }) {
 
 const styles = StyleSheet.create({
     container: { flex: 1, padding: 14 },
+    streakBanner: {
+        borderRadius: 12, borderWidth: 1,
+        padding: 16, marginBottom: 14,
+        flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    },
+    streakValue: { fontSize: 36, fontWeight: 'bold', lineHeight: 40 },
+    streakLabel: { fontSize: 12, marginTop: 2 },
+    streakFire: { fontSize: 13, fontWeight: '600' },
     grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 14 },
     card: {
         flex: 1, minWidth: '28%', padding: 14,

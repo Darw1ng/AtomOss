@@ -14,6 +14,7 @@ import {
     ScrollView,
 } from 'react-native';
 import { List as ListIcon, MoreVertical, Plus, Search, X, ArrowUpDown, Pin } from 'lucide-react-native';
+import { timeAgo } from '../utils/timeAgo';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
 import { useHomeData } from '../hooks/useHomeData';
@@ -25,8 +26,8 @@ import NoteOptionsMenu from '../components/NoteOptionsMenu';
 
 const { width } = Dimensions.get('window');
 
-const SORT_MODES = ['recent', 'oldest', 'az'];
-const SORT_LABELS = { recent: 'Recientes', oldest: 'Antiguas', az: 'A → Z' };
+const SORT_MODES = ['recent', 'oldest', 'az', 'edited'];
+const SORT_LABELS = { recent: 'Recientes', oldest: 'Antiguas', az: 'A → Z', edited: 'Editadas' };
 
 export default function HomeScreen({ navigation }) {
     const { theme, mode } = useTheme();
@@ -82,6 +83,11 @@ export default function HomeScreen({ navigation }) {
                 break;
             case 'oldest':
                 result.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+                break;
+            case 'edited':
+                result.sort((a, b) =>
+                    new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt)
+                );
                 break;
             default:
                 result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -191,6 +197,8 @@ export default function HomeScreen({ navigation }) {
                     tags={item.tags}
                     pinned={item.pinned}
                     color={item.color}
+                    updatedAt={item.updatedAt}
+                    createdAt={item.createdAt}
                     onPress={() => navigation.navigate('Detail', { note: item })}
                     onLongPress={(e) => handleOptionsPress(item, e)}
                 />
@@ -236,9 +244,14 @@ export default function HomeScreen({ navigation }) {
                         )}
                     </View>
                 </View>
-                <TouchableOpacity onPress={(e) => handleOptionsPress(item, e)} style={{ padding: 5 }}>
-                    <MoreVertical size={16} color={theme.textDim} />
-                </TouchableOpacity>
+                <View style={{ alignItems: 'flex-end' }}>
+                    <TouchableOpacity onPress={(e) => handleOptionsPress(item, e)} style={{ padding: 5 }}>
+                        <MoreVertical size={16} color={theme.textDim} />
+                    </TouchableOpacity>
+                    <Text style={{ color: theme.textDim, fontSize: 10, marginRight: 5, opacity: 0.7 }}>
+                        {timeAgo(item.updatedAt || item.createdAt)}
+                    </Text>
+                </View>
             </TouchableOpacity>
         );
     };
