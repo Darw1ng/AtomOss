@@ -1,22 +1,27 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, View, Dimensions } from 'react-native';
+import { Pin } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
-import { PREDEFINED_TAGS } from '../constants/tags';
+import { PREDEFINED_TAGS, NOTE_TINTS } from '../constants/tags';
 
 const screenWidth = Dimensions.get('window').width;
 const cardWidth = (screenWidth / 3) - 14;
 
-export default function NoteCard({ title, content, tags = [], onPress, onLongPress }) {
-    const { theme } = useTheme();
+export default function NoteCard({ title, content, tags = [], pinned = false, color = null, onPress, onLongPress }) {
+    const { theme, mode } = useTheme();
 
     const resolvedTags = tags
         .map(id => PREDEFINED_TAGS.find(t => t.id === id))
         .filter(Boolean)
         .slice(0, 3);
 
+    const bgColor = color && NOTE_TINTS[color]
+        ? NOTE_TINTS[color][mode === 'dark' ? 'dark' : 'light']
+        : theme.card;
+
     return (
         <TouchableOpacity
-            style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}
+            style={[styles.card, { backgroundColor: bgColor, borderColor: theme.border }]}
             onPress={onPress}
             activeOpacity={0.7}
             onLongPress={onLongPress}
@@ -25,6 +30,7 @@ export default function NoteCard({ title, content, tags = [], onPress, onLongPre
                 <Text style={[styles.title, { color: theme.primary }]} numberOfLines={1}>
                     {title || 'Vacío'}
                 </Text>
+                {pinned && <Pin size={10} color={theme.primary} fill={theme.primary} />}
             </View>
 
             <Text style={[styles.content, { color: theme.textDim }]} numberOfLines={4}>

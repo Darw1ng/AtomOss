@@ -30,6 +30,8 @@ const notesService = {
                 title: noteData.title,
                 content: noteData.content,
                 tags: noteData.tags || [],
+                pinned: noteData.pinned || false,
+                color: noteData.color || null,
                 createdAt: new Date().toISOString()
             };
 

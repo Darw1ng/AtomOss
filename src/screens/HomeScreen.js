@@ -13,20 +13,23 @@ import {
     Dimensions,
     ScrollView,
 } from 'react-native';
-import { List as ListIcon, MoreVertical, Plus, Search, X } from 'lucide-react-native';
+import { List as ListIcon, MoreVertical, Plus, Search, X, ArrowUpDown, Pin } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
 import { useHomeData } from '../hooks/useHomeData';
 import notesService from '../api/notesService';
-import { PREDEFINED_TAGS } from '../constants/tags';
+import { PREDEFINED_TAGS, NOTE_TINTS } from '../constants/tags';
 import NoteCard from '../components/NoteCard';
 import MainMenu from '../components/MainMenu';
 import NoteOptionsMenu from '../components/NoteOptionsMenu';
 
 const { width } = Dimensions.get('window');
 
+const SORT_MODES = ['recent', 'oldest', 'az'];
+const SORT_LABELS = { recent: 'Recientes', oldest: 'Antiguas', az: 'A → Z' };
+
 export default function HomeScreen({ navigation }) {
-    const { theme } = useTheme();
+    const { theme, mode } = useTheme();
     const { notes, loading, unreadCount, fetchNotes } = useHomeData();
 
     const [viewMode, setViewMode] = useState('grid');
@@ -36,6 +39,7 @@ export default function HomeScreen({ navigation }) {
     const [menuPosition, setMenuPosition] = useState({ top: 0, right: 10 });
     const [searchQuery, setSearchQuery] = useState('');
     const [activeTag, setActiveTag] = useState(null);
+    const [sortMode, setSortMode] = useState('recent');
 
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -52,8 +56,14 @@ export default function HomeScreen({ navigation }) {
         });
     }, [navigation, unreadCount]);
 
+    const cycleSortMode = () => {
+        const idx = SORT_MODES.indexOf(sortMode);
+        setSortMode(SORT_MODES[(idx + 1) % SORT_MODES.length]);
+    };
+
     const filteredNotes = useMemo(() => {
-        let result = notes;
+        let result = [...notes];
+
         if (searchQuery.trim()) {
             const q = searchQuery.toLowerCase();
             result = result.filter(n =>
@@ -61,11 +71,28 @@ export default function HomeScreen({ navigation }) {
                 n.content?.toLowerCase().includes(q)
             );
         }
+
         if (activeTag) {
             result = result.filter(n => n.tags?.includes(activeTag));
         }
-        return result;
-    }, [notes, searchQuery, activeTag]);
+
+        switch (sortMode) {
+            case 'az':
+                result.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+                break;
+            case 'oldest':
+                result.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+                break;
+            default:
+                result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        }
+
+        // Fijadas siempre al frente, respetando el orden de sort entre sí
+        return [
+            ...result.filter(n => n.pinned),
+            ...result.filter(n => !n.pinned),
+        ];
+    }, [notes, searchQuery, activeTag, sortMode]);
 
     const handleOptionsPress = (note, event) => {
         const { pageX, pageY } = event.nativeEvent;
@@ -108,6 +135,21 @@ export default function HomeScreen({ navigation }) {
         );
     };
 
+    const handlePin = async () => {
+        if (!selectedNote) return;
+        await notesService.update(selectedNote.id, { pinned: !selectedNote.pinned });
+        fetchNotes();
+        setOptionsVisible(false);
+    };
+
+    const handleColorChange = async (colorId) => {
+        if (!selectedNote) return;
+        await notesService.update(selectedNote.id, { color: colorId });
+        // Actualiza selectedNote para reflejar el nuevo color sin cerrar el menu
+        setSelectedNote(prev => ({ ...prev, color: colorId }));
+        fetchNotes();
+    };
+
     const renderItem = ({ item }) => {
         if (viewMode === 'grid') {
             return (
@@ -115,6 +157,8 @@ export default function HomeScreen({ navigation }) {
                     title={item.title}
                     content={item.content}
                     tags={item.tags}
+                    pinned={item.pinned}
+                    color={item.color}
                     onPress={() => navigation.navigate('Detail', { note: item })}
                     onLongPress={(e) => handleOptionsPress(item, e)}
                 />
@@ -125,14 +169,21 @@ export default function HomeScreen({ navigation }) {
             .map(id => PREDEFINED_TAGS.find(t => t.id === id))
             .filter(Boolean);
 
+        const rowBg = item.color && NOTE_TINTS[item.color]
+            ? NOTE_TINTS[item.color][mode === 'dark' ? 'dark' : 'light'] + 'aa'
+            : 'rgba(0,0,0,0.2)';
+
         return (
             <TouchableOpacity
-                style={[styles.listItem, { borderBottomColor: theme.border }]}
+                style={[styles.listItem, { borderBottomColor: theme.border, backgroundColor: rowBg }]}
                 onPress={() => navigation.navigate('Detail', { note: item })}
                 onLongPress={(e) => handleOptionsPress(item, e)}
             >
                 <View style={styles.iconBox}>
-                    <ListIcon size={18} color={theme.textDim} />
+                    {item.pinned
+                        ? <Pin size={15} color={theme.primary} fill={theme.primary} />
+                        : <ListIcon size={18} color={theme.textDim} />
+                    }
                 </View>
                 <View style={{ flex: 1 }}>
                     <Text style={[styles.listTitle, { color: theme.text }]} numberOfLines={1}>
@@ -162,22 +213,31 @@ export default function HomeScreen({ navigation }) {
 
     const ListHeader = () => (
         <View style={styles.listHeaderContainer}>
-            {/* Barra de búsqueda */}
-            <View style={[styles.searchBar, { backgroundColor: theme.card, borderColor: theme.border }]}>
-                <Search size={15} color={theme.textDim} style={{ marginRight: 8 }} />
-                <TextInput
-                    style={[styles.searchInput, { color: theme.text }]}
-                    placeholder="Buscar notas..."
-                    placeholderTextColor={theme.textDim}
-                    value={searchQuery}
-                    onChangeText={setSearchQuery}
-                    returnKeyType="search"
-                />
-                {searchQuery.length > 0 && (
-                    <TouchableOpacity onPress={() => setSearchQuery('')} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-                        <X size={14} color={theme.textDim} />
-                    </TouchableOpacity>
-                )}
+            {/* Búsqueda + botón de orden */}
+            <View style={styles.searchRow}>
+                <View style={[styles.searchBar, { backgroundColor: theme.card, borderColor: theme.border }]}>
+                    <Search size={15} color={theme.textDim} style={{ marginRight: 8 }} />
+                    <TextInput
+                        style={[styles.searchInput, { color: theme.text }]}
+                        placeholder="Buscar notas..."
+                        placeholderTextColor={theme.textDim}
+                        value={searchQuery}
+                        onChangeText={setSearchQuery}
+                        returnKeyType="search"
+                    />
+                    {searchQuery.length > 0 && (
+                        <TouchableOpacity onPress={() => setSearchQuery('')} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                            <X size={14} color={theme.textDim} />
+                        </TouchableOpacity>
+                    )}
+                </View>
+                <TouchableOpacity
+                    style={[styles.sortBtn, { backgroundColor: theme.card, borderColor: theme.border }]}
+                    onPress={cycleSortMode}
+                >
+                    <ArrowUpDown size={13} color={theme.primary} />
+                    <Text style={[styles.sortLabel, { color: theme.primary }]}>{SORT_LABELS[sortMode]}</Text>
+                </TouchableOpacity>
             </View>
 
             {/* Chips de filtro por tag */}
@@ -199,7 +259,6 @@ export default function HomeScreen({ navigation }) {
                         Todas
                     </Text>
                 </TouchableOpacity>
-
                 {PREDEFINED_TAGS.map(tag => (
                     <TouchableOpacity
                         key={tag.id}
@@ -218,7 +277,6 @@ export default function HomeScreen({ navigation }) {
                 ))}
             </ScrollView>
 
-            {/* Contador de resultados si hay búsqueda activa */}
             {(searchQuery.trim() || activeTag) && (
                 <Text style={[styles.resultsCount, { color: theme.textDim }]}>
                     {filteredNotes.length} {filteredNotes.length === 1 ? 'nota' : 'notas'}
@@ -275,6 +333,10 @@ export default function HomeScreen({ navigation }) {
                 onClose={() => setOptionsVisible(false)}
                 onShare={handleShare}
                 onDelete={handleDelete}
+                onPin={handlePin}
+                onColorChange={handleColorChange}
+                isPinned={selectedNote?.pinned}
+                noteColor={selectedNote?.color}
                 menuPosition={menuPosition}
             />
         </LinearGradient>
@@ -294,16 +356,27 @@ const styles = StyleSheet.create({
     listContent: { padding: 10 },
     columnWrapper: { justifyContent: 'flex-start' },
     listHeaderContainer: { marginBottom: 8 },
+    searchRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 },
     searchBar: {
+        flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         borderRadius: 12,
         borderWidth: 1,
         paddingHorizontal: 12,
         paddingVertical: 8,
-        marginBottom: 10,
     },
     searchInput: { flex: 1, fontSize: 14, padding: 0 },
+    sortBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderRadius: 12,
+        borderWidth: 1,
+        paddingHorizontal: 10,
+        paddingVertical: 8,
+        gap: 4,
+    },
+    sortLabel: { fontSize: 11, fontWeight: '600' },
     tagFilterScroll: { marginBottom: 4 },
     tagFilterContent: { paddingRight: 10, gap: 6 },
     filterChip: {
@@ -319,9 +392,9 @@ const styles = StyleSheet.create({
     resultsCount: { fontSize: 11, marginTop: 4, marginLeft: 2 },
     listItem: {
         flexDirection: 'row', alignItems: 'center', padding: 12,
-        borderBottomWidth: 1, backgroundColor: 'rgba(0,0,0,0.2)', marginBottom: 2,
+        borderBottomWidth: 1, marginBottom: 2,
     },
-    iconBox: { marginRight: 12, opacity: 0.7 },
+    iconBox: { marginRight: 12, opacity: 0.8 },
     listTitle: { fontWeight: 'bold', fontSize: 14 },
     listMeta: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 4, marginTop: 2 },
     listPreview: { fontSize: 12 },
