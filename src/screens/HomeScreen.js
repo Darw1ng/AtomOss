@@ -12,6 +12,7 @@ import {
     Alert,
     Dimensions,
     ScrollView,
+    RefreshControl,
 } from 'react-native';
 import { List as ListIcon, MoreVertical, Plus, Search, X, ArrowUpDown, Pin, Sparkles } from 'lucide-react-native';
 import { timeAgo } from '../utils/timeAgo';
@@ -43,6 +44,12 @@ export default function HomeScreen({ navigation }) {
     const [activeTag, setActiveTag] = useState(null);
     const [sortMode, setSortMode] = useState('recent');
     const [promptDismissed, setPromptDismissed] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
+    const onRefresh = async () => {
+        setRefreshing(true);
+        await fetchNotes();
+        setRefreshing(false);
+    };
     const dailyPrompt = useMemo(() => getDailyPrompt(), []);
 
     useLayoutEffect(() => {
@@ -371,6 +378,14 @@ export default function HomeScreen({ navigation }) {
                     contentContainerStyle={styles.listContent}
                     ListHeaderComponent={ListHeader}
                     renderItem={renderItem}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={onRefresh}
+                            tintColor={theme.primary}
+                            colors={[theme.primary]}
+                        />
+                    }
                     ListEmptyComponent={
                         <Text style={[styles.emptyText, { color: theme.textDim }]}>
                             {searchQuery || activeTag ? 'Sin resultados' : 'No hay notas aún'}

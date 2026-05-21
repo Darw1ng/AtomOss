@@ -13,7 +13,7 @@ import SignatureScreen from "react-native-signature-canvas";
 import {
     Save, Trash2, Bold, Heading, List, Image as ImageIcon,
     Wrench, Eye, EyeOff, X, Italic, Quote, Code, PenTool,
-    Check, Eraser, RotateCcw, Tag, Maximize2, Minimize2
+    Check, Eraser, RotateCcw, Tag, Maximize2, Minimize2, CheckSquare
 } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
 import notesService from '../api/notesService';
@@ -130,12 +130,34 @@ export default function DetailScreen({ route, navigation }) {
         image: { width: '100%', height: 200, borderRadius: 8 }
     }), [theme]);
 
+    const toggleCheckbox = (targetIdx) => {
+        let idx = 0;
+        const newContent = content.replace(/^(\s*)-\s*\[([x ])\]\s/gm, (match, indent, state) => {
+            if (idx === targetIdx) {
+                idx++;
+                return `${indent}- [${state === 'x' ? ' ' : 'x'}] `;
+            }
+            idx++;
+            return match;
+        });
+        setContent(newContent);
+    };
+
+    const checkboxCounter = { current: 0 };
+    if (isPreview) checkboxCounter.current = 0;
+
+    const extractText = (n) => {
+        if (typeof n.content === 'string') return n.content;
+        if (n.children && n.children.length) return n.children.map(extractText).join('');
+        return '';
+    };
+
     const markdownRules = {
         image: (node, children, parent, styles) => {
             const { src, alt } = node.attributes;
             return (
-                <TouchableOpacity 
-                    key={node.key} 
+                <TouchableOpacity
+                    key={node.key}
                     onPress={() => handleMediaPress(src, alt)}
                     activeOpacity={0.8}
                 >
@@ -147,6 +169,47 @@ export default function DetailScreen({ route, navigation }) {
                         </View>
                     )}
                 </TouchableOpacity>
+            );
+        },
+        list_item: (node, children, parent, mdStyles) => {
+            const raw = extractText(node).trim();
+            const match = raw.match(/^\[([x ])\]\s+([\s\S]*)/);
+            if (match) {
+                const myIdx = checkboxCounter.current++;
+                const checked = match[1] === 'x';
+                const taskText = match[2];
+                return (
+                    <TouchableOpacity
+                        key={node.key}
+                        style={{ flexDirection: 'row', alignItems: 'flex-start', marginVertical: 4 }}
+                        onPress={() => toggleCheckbox(myIdx)}
+                        activeOpacity={0.6}
+                    >
+                        <View style={[
+                            {
+                                width: 18, height: 18, borderRadius: 4, borderWidth: 1.5,
+                                marginRight: 8, marginTop: 2,
+                                justifyContent: 'center', alignItems: 'center',
+                                borderColor: theme.primary,
+                            },
+                            checked && { backgroundColor: theme.primary },
+                        ]}>
+                            {checked && <Check size={12} color="#fff" />}
+                        </View>
+                        <Text style={[
+                            { flex: 1, fontSize: 15, lineHeight: 22, color: theme.textDim },
+                            checked && { textDecorationLine: 'line-through', opacity: 0.5 },
+                        ]}>
+                            {taskText}
+                        </Text>
+                    </TouchableOpacity>
+                );
+            }
+            return (
+                <View key={node.key} style={{ flexDirection: 'row', marginVertical: 2 }}>
+                    <Text style={{ color: theme.textDim, marginRight: 6, marginTop: 2 }}>•</Text>
+                    <View style={{ flex: 1 }}>{children}</View>
+                </View>
             );
         },
     };
@@ -351,6 +414,7 @@ export default function DetailScreen({ route, navigation }) {
                             <TouchableOpacity style={styles.toolBtn} onPress={() => insertMarkdown('_', '_')}><Italic size={20} color={theme.text} /></TouchableOpacity>
                             <TouchableOpacity style={styles.toolBtn} onPress={() => insertMarkdown('# ')}><Heading size={20} color={theme.text} /></TouchableOpacity>
                             <TouchableOpacity style={styles.toolBtn} onPress={() => insertMarkdown('- ')}><List size={20} color={theme.text} /></TouchableOpacity>
+                            <TouchableOpacity style={styles.toolBtn} onPress={() => insertMarkdown('- [ ] ')}><CheckSquare size={20} color={theme.text} /></TouchableOpacity>
                             <TouchableOpacity style={styles.toolBtn} onPress={() => insertMarkdown('> ')}><Quote size={20} color={theme.text} /></TouchableOpacity>
                             <TouchableOpacity style={styles.toolBtn} onPress={() => insertMarkdown('`', '`')}><Code size={20} color={theme.text} /></TouchableOpacity>
                             <TouchableOpacity style={styles.toolBtn} onPress={pickImage}><ImageIcon size={20} color={theme.primary} /></TouchableOpacity>
