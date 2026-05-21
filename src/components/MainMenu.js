@@ -2,7 +2,7 @@ import React from 'react';
 import { Modal, Pressable, View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
 import {
     LayoutGrid, List as ListIcon, Settings, Calendar,
-    Newspaper, Bell, X, ChevronRight, Network, BarChart2
+    Newspaper, Bell, X, ChevronRight, Network, BarChart2, Trash2
 } from 'lucide-react-native';
 import { useTheme } from '../context/ThemeContext';
 
@@ -56,6 +56,7 @@ const MainMenu = ({ visible, onClose, navigation, viewMode, setViewMode, unreadC
                         <MenuItem theme={theme} icon={Calendar} label="Calendario" onPress={() => navigateAndClose('Calendar')} />
                         <MenuItem theme={theme} icon={Newspaper} label="Noticias" onPress={() => navigateAndClose('News')} />
                         <MenuItem theme={theme} icon={Bell} label="Notificaciones" badge={unreadCount} onPress={() => navigateAndClose('Notifications')} />
+                        <MenuItem theme={theme} icon={Trash2} label="Papelera" onPress={() => navigateAndClose('Trash')} />
                         <View style={[styles.divider, { backgroundColor: theme.border }]} />
                         <MenuItem
                             theme={theme}

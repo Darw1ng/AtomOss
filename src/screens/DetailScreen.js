@@ -24,16 +24,16 @@ const DRAWING_COLORS = ['#000000', '#FF0000', '#44895C', '#3b82f6', '#facc15'];
 
 export default function DetailScreen({ route, navigation }) {
     const { theme } = useTheme();
-    const { note } = route.params || {};
+    const { note, prefillTitle, prefillContent } = route.params || {};
     const insets = useSafeAreaInsets();
 
-    const [title, setTitle] = useState(note ? note.title : '');
-    const [content, setContent] = useState(note ? note.content : '');
+    const [title, setTitle] = useState(note ? note.title : (prefillTitle || ''));
+    const [content, setContent] = useState(note ? note.content : (prefillContent || ''));
     const [tags, setTags] = useState(note ? (note.tags || []) : []);
     const [tagModalVisible, setTagModalVisible] = useState(false);
     const [saving, setSaving] = useState(false);
     const [saveStatus, setSaveStatus] = useState('idle'); // 'idle' | 'saving' | 'saved'
-    const [templateModalVisible, setTemplateModalVisible] = useState(!note);
+    const [templateModalVisible, setTemplateModalVisible] = useState(!note && !prefillTitle && !prefillContent);
     const currentNoteIdRef = useRef(note?.id || null);
     const autoSaveTimerRef = useRef(null);
     const initializedRef = useRef(false);

@@ -13,8 +13,9 @@ import {
     Dimensions,
     ScrollView,
 } from 'react-native';
-import { List as ListIcon, MoreVertical, Plus, Search, X, ArrowUpDown, Pin } from 'lucide-react-native';
+import { List as ListIcon, MoreVertical, Plus, Search, X, ArrowUpDown, Pin, Sparkles } from 'lucide-react-native';
 import { timeAgo } from '../utils/timeAgo';
+import { getDailyPrompt } from '../constants/prompts';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
 import { useHomeData } from '../hooks/useHomeData';
@@ -41,6 +42,8 @@ export default function HomeScreen({ navigation }) {
     const [searchQuery, setSearchQuery] = useState('');
     const [activeTag, setActiveTag] = useState(null);
     const [sortMode, setSortMode] = useState('recent');
+    const [promptDismissed, setPromptDismissed] = useState(false);
+    const dailyPrompt = useMemo(() => getDailyPrompt(), []);
 
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -124,12 +127,12 @@ export default function HomeScreen({ navigation }) {
     const handleDelete = () => {
         if (!selectedNote) return;
         Alert.alert(
-            'Eliminar Nota',
-            '¿Estás seguro de que quieres eliminar esta nota?',
+            'Mover a papelera',
+            'Podrás restaurarla desde la papelera dentro de 30 días.',
             [
                 { text: 'Cancelar', style: 'cancel', onPress: () => setOptionsVisible(false) },
                 {
-                    text: 'Eliminar',
+                    text: 'Mover',
                     style: 'destructive',
                     onPress: async () => {
                         await notesService.delete(selectedNote.id);
@@ -258,6 +261,25 @@ export default function HomeScreen({ navigation }) {
 
     const ListHeader = () => (
         <View style={styles.listHeaderContainer}>
+            {!promptDismissed && !searchQuery && !activeTag && (
+                <TouchableOpacity
+                    style={[styles.promptBanner, { backgroundColor: theme.primary + '15', borderColor: theme.primary + '40' }]}
+                    onPress={() => navigation.navigate('Detail', { note: null, prefillTitle: dailyPrompt })}
+                    activeOpacity={0.7}
+                >
+                    <Sparkles size={14} color={theme.primary} />
+                    <Text style={[styles.promptText, { color: theme.text }]} numberOfLines={2}>
+                        {dailyPrompt}
+                    </Text>
+                    <TouchableOpacity
+                        onPress={() => setPromptDismissed(true)}
+                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    >
+                        <X size={14} color={theme.textDim} />
+                    </TouchableOpacity>
+                </TouchableOpacity>
+            )}
+
             {/* Búsqueda + botón de orden */}
             <View style={styles.searchRow}>
                 <View style={[styles.searchBar, { backgroundColor: theme.card, borderColor: theme.border }]}>
@@ -403,6 +425,17 @@ const styles = StyleSheet.create({
     listContent: { padding: 10 },
     columnWrapper: { justifyContent: 'flex-start' },
     listHeaderContainer: { marginBottom: 8 },
+    promptBanner: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        borderRadius: 12,
+        borderWidth: 1,
+        paddingHorizontal: 12,
+        paddingVertical: 10,
+        marginBottom: 10,
+    },
+    promptText: { flex: 1, fontSize: 13, fontStyle: 'italic' },
     searchRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 },
     searchBar: {
         flex: 1,

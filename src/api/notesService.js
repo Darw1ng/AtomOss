@@ -1,30 +1,50 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const STORAGE_KEY = '@atomoss_notes_v1';
+const TRASH_RETENTION_DAYS = 30;
 
-// Función auxiliar para simular un pequeño retardo (opcional, da sensación de proceso)
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+const readAll = async () => {
+    try {
+        const jsonValue = await AsyncStorage.getItem(STORAGE_KEY);
+        return jsonValue != null ? JSON.parse(jsonValue) : [];
+    } catch (error) {
+        console.error("Error al leer notas locales:", error);
+        return [];
+    }
+};
+
+const writeAll = async (notes) => {
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+};
+
+const purgeOldTrash = (notes) => {
+    const cutoff = Date.now() - TRASH_RETENTION_DAYS * 86400000;
+    return notes.filter(n => {
+        if (!n.deleted) return true;
+        return new Date(n.deletedAt || 0).getTime() > cutoff;
+    });
+};
 
 const notesService = {
-    // 1. Obtener todas las notas (Local)
     getAll: async () => {
-        try {
-            const jsonValue = await AsyncStorage.getItem(STORAGE_KEY);
-            // Si no hay nada guardado aún, devolvemos un array vacío []
-            return jsonValue != null ? JSON.parse(jsonValue) : [];
-        } catch (error) {
-            console.error("Error al leer notas locales:", error);
-            return [];
-        }
+        const all = await readAll();
+        const pruned = purgeOldTrash(all);
+        if (pruned.length !== all.length) await writeAll(pruned);
+        return pruned.filter(n => !n.deleted);
     },
 
-    // 2. Crear una nota nueva (Local)
+    getTrash: async () => {
+        const all = await readAll();
+        const pruned = purgeOldTrash(all);
+        if (pruned.length !== all.length) await writeAll(pruned);
+        return pruned
+            .filter(n => n.deleted)
+            .sort((a, b) => new Date(b.deletedAt) - new Date(a.deletedAt));
+    },
+
     create: async (noteData) => {
         try {
-            // a. Obtenemos las notas actuales
-            const currentNotes = await notesService.getAll();
-
-            // b. Creamos la nueva nota con un ID único (usamos la fecha actual)
+            const currentNotes = await readAll();
             const newNote = {
                 id: Date.now().toString(),
                 title: noteData.title,
@@ -34,13 +54,7 @@ const notesService = {
                 color: noteData.color || null,
                 createdAt: new Date().toISOString()
             };
-
-            // c. La agregamos al principio de la lista
-            const updatedNotes = [newNote, ...currentNotes];
-
-            // d. Guardamos la lista actualizada
-            await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedNotes));
-
+            await writeAll([newNote, ...currentNotes]);
             return newNote;
         } catch (error) {
             console.error("Error al guardar nota local:", error);
@@ -48,27 +62,18 @@ const notesService = {
         }
     },
 
-    // 3. Actualizar una nota existente (Local)
     update: async (id, noteData) => {
         try {
-            const currentNotes = await notesService.getAll();
-
-            // Encontramos el índice de la nota a editar
+            const currentNotes = await readAll();
             const noteIndex = currentNotes.findIndex(n => n.id === id);
-
             if (noteIndex !== -1) {
-                // Actualizamos solo los campos necesarios
                 const updatedNote = {
                     ...currentNotes[noteIndex],
                     ...noteData,
                     updatedAt: new Date().toISOString()
                 };
-
-                // Reemplazamos en el array
                 currentNotes[noteIndex] = updatedNote;
-
-                // Guardamos
-                await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(currentNotes));
+                await writeAll(currentNotes);
                 return updatedNote;
             }
             throw new Error('Nota no encontrada');
@@ -78,22 +83,63 @@ const notesService = {
         }
     },
 
-    // 4. Eliminar una nota (Local)
+    // Soft delete: marca la nota como eliminada (queda en papelera)
     delete: async (id) => {
         try {
-            const currentNotes = await notesService.getAll();
-
-            // Filtramos la nota que queremos borrar
-            const filteredNotes = currentNotes.filter(n => n.id !== id);
-
-            // Guardamos la nueva lista
-            await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(filteredNotes));
+            const currentNotes = await readAll();
+            const idx = currentNotes.findIndex(n => n.id === id);
+            if (idx !== -1) {
+                currentNotes[idx] = {
+                    ...currentNotes[idx],
+                    deleted: true,
+                    deletedAt: new Date().toISOString(),
+                };
+                await writeAll(currentNotes);
+            }
             return true;
         } catch (error) {
-            console.error("Error al eliminar nota local:", error);
+            console.error("Error al mover nota a papelera:", error);
             throw error;
         }
-    }
+    },
+
+    restore: async (id) => {
+        try {
+            const currentNotes = await readAll();
+            const idx = currentNotes.findIndex(n => n.id === id);
+            if (idx !== -1) {
+                const { deleted, deletedAt, ...rest } = currentNotes[idx];
+                currentNotes[idx] = rest;
+                await writeAll(currentNotes);
+            }
+            return true;
+        } catch (error) {
+            console.error("Error al restaurar nota:", error);
+            throw error;
+        }
+    },
+
+    permanentDelete: async (id) => {
+        try {
+            const currentNotes = await readAll();
+            await writeAll(currentNotes.filter(n => n.id !== id));
+            return true;
+        } catch (error) {
+            console.error("Error al eliminar nota permanentemente:", error);
+            throw error;
+        }
+    },
+
+    emptyTrash: async () => {
+        try {
+            const currentNotes = await readAll();
+            await writeAll(currentNotes.filter(n => !n.deleted));
+            return true;
+        } catch (error) {
+            console.error("Error al vaciar papelera:", error);
+            throw error;
+        }
+    },
 };
 
 export default notesService;

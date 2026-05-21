@@ -18,6 +18,7 @@ import NotificationsScreen from './src/screens/NotificationsScreen';
 import CanvasScreen from './src/screens/CanvasScreen';
 import DiagramListScreen from './src/screens/DiagramListScreen';
 import StatsScreen from './src/screens/StatsScreen';
+import TrashScreen from './src/screens/TrashScreen';
 
 // Prevenimos que la splash nativa se oculte sola
 SplashScreen.preventAutoHideAsync();
@@ -47,6 +48,7 @@ const MainNavigator = () => {
                 <Stack.Screen name="Canvas" component={CanvasScreen} options={{ title: 'Lienzo Mental' }} />
                 <Stack.Screen name="DiagramList" component={DiagramListScreen} options={{ title: 'Mapas Mentales' }} />
                 <Stack.Screen name="Stats" component={StatsScreen} options={{ title: 'Estadísticas' }} />
+                <Stack.Screen name="Trash" component={TrashScreen} options={{ title: 'Papelera' }} />
             </Stack.Navigator>
         </NavigationContainer>
     );
