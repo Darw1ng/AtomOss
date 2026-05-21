@@ -410,18 +410,18 @@ export default function DetailScreen({ route, navigation }) {
                 {showToolbar && !isPreview && !zenMode && (
                     <View style={[styles.toolbarContainer, { backgroundColor: theme.card, borderColor: theme.border }]}>
                         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.toolbarScroll} keyboardShouldPersistTaps="always">
-                            <TouchableOpacity style={styles.toolBtn} onPress={() => insertMarkdown('**', '**')}><Bold size={20} color={theme.text} /></TouchableOpacity>
-                            <TouchableOpacity style={styles.toolBtn} onPress={() => insertMarkdown('_', '_')}><Italic size={20} color={theme.text} /></TouchableOpacity>
-                            <TouchableOpacity style={styles.toolBtn} onPress={() => insertMarkdown('# ')}><Heading size={20} color={theme.text} /></TouchableOpacity>
-                            <TouchableOpacity style={styles.toolBtn} onPress={() => insertMarkdown('- ')}><List size={20} color={theme.text} /></TouchableOpacity>
-                            <TouchableOpacity style={styles.toolBtn} onPress={() => insertMarkdown('- [ ] ')}><CheckSquare size={20} color={theme.text} /></TouchableOpacity>
-                            <TouchableOpacity style={styles.toolBtn} onPress={() => insertMarkdown('> ')}><Quote size={20} color={theme.text} /></TouchableOpacity>
-                            <TouchableOpacity style={styles.toolBtn} onPress={() => insertMarkdown('`', '`')}><Code size={20} color={theme.text} /></TouchableOpacity>
-                            <TouchableOpacity style={styles.toolBtn} onPress={pickImage}><ImageIcon size={20} color={theme.primary} /></TouchableOpacity>
+                            <TouchableOpacity style={styles.toolBtn} onPress={() => insertMarkdown('**', '**')}><Bold size={22} color={theme.text} /></TouchableOpacity>
+                            <TouchableOpacity style={styles.toolBtn} onPress={() => insertMarkdown('_', '_')}><Italic size={22} color={theme.text} /></TouchableOpacity>
+                            <TouchableOpacity style={styles.toolBtn} onPress={() => insertMarkdown('# ')}><Heading size={22} color={theme.text} /></TouchableOpacity>
+                            <TouchableOpacity style={styles.toolBtn} onPress={() => insertMarkdown('- ')}><List size={22} color={theme.text} /></TouchableOpacity>
+                            <TouchableOpacity style={styles.toolBtn} onPress={() => insertMarkdown('- [ ] ')}><CheckSquare size={22} color={theme.text} /></TouchableOpacity>
+                            <TouchableOpacity style={styles.toolBtn} onPress={() => insertMarkdown('> ')}><Quote size={22} color={theme.text} /></TouchableOpacity>
+                            <TouchableOpacity style={styles.toolBtn} onPress={() => insertMarkdown('`', '`')}><Code size={22} color={theme.text} /></TouchableOpacity>
+                            <TouchableOpacity style={styles.toolBtn} onPress={pickImage}><ImageIcon size={22} color={theme.primary} /></TouchableOpacity>
 
                             {/* Botón para abrir el Canvas */}
                             <TouchableOpacity style={styles.toolBtn} onPress={() => { setIsDrawing(true); setPenColor('#000000'); }}>
-                                <PenTool size={20} color={theme.primary} />
+                                <PenTool size={22} color={theme.primary} />
                             </TouchableOpacity>
                         </ScrollView>
                         <TouchableOpacity style={[styles.closeBarBtn, { borderLeftColor: theme.border }]} onPress={() => setShowToolbar(false)}>
@@ -622,22 +622,22 @@ export default function DetailScreen({ route, navigation }) {
 
 const styles = StyleSheet.create({
     mainContainer: { flex: 1, flexDirection: 'column' },
-    editorArea: { flex: 1, padding: 20 },
-    titleInput: { fontSize: 24, fontWeight: 'bold', marginBottom: 15, borderBottomWidth: 1, paddingBottom: 8 },
-    contentInput: { flex: 1, fontSize: 16, lineHeight: 24, textAlignVertical: 'top' },
+    editorArea: { flex: 1, padding: 22 },
+    titleInput: { fontSize: 26, fontWeight: 'bold', marginBottom: 16, borderBottomWidth: 1, paddingBottom: 10 },
+    contentInput: { flex: 1, fontSize: 17, lineHeight: 26, textAlignVertical: 'top' },
     previewContainer: { flex: 1, marginBottom: 10 },
-    toolbarContainer: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8, paddingHorizontal: 10, borderTopWidth: 1, borderBottomWidth: 1, maxHeight: 60 },
+    toolbarContainer: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 10, borderTopWidth: 1, borderBottomWidth: 1, maxHeight: 64 },
     toolbarScroll: { alignItems: 'center', paddingRight: 10 },
-    toolBtn: { padding: 10, marginHorizontal: 2 },
-    closeBarBtn: { padding: 5, borderLeftWidth: 1, marginLeft: 5 },
-    footer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 15, paddingTop: 10, borderTopWidth: 1 },
-    wordCountText: { fontSize: 11, opacity: 0.7 },
+    toolBtn: { padding: 12, marginHorizontal: 2 },
+    closeBarBtn: { padding: 6, borderLeftWidth: 1, marginLeft: 5 },
+    footer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 15, paddingTop: 12, borderTopWidth: 1 },
+    wordCountText: { fontSize: 12, opacity: 0.75 },
     leftTools: { flexDirection: 'row' },
     rightTools: { flexDirection: 'row', alignItems: 'center' },
-    roundBtn: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center', borderWidth: 1 },
-    saveBtn: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 18, borderRadius: 30, marginLeft: 10 },
-    saveText: { fontWeight: 'bold', color: '#fff' },
-    deleteBtn: { padding: 8, borderRadius: 50, marginRight: 5 },
+    roundBtn: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center', borderWidth: 1 },
+    saveBtn: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 20, borderRadius: 30, marginLeft: 10 },
+    saveText: { fontWeight: 'bold', color: '#fff', fontSize: 15 },
+    deleteBtn: { padding: 10, borderRadius: 50, marginRight: 6 },
     modalHeader: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 15, alignItems: 'center', borderBottomWidth: 1 },
     modalTitle: { fontSize: 18, fontWeight: 'bold' },
     closeModalBtn: { padding: 5 },

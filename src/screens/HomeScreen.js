@@ -231,8 +231,8 @@ export default function HomeScreen({ navigation }) {
             >
                 <View style={styles.iconBox}>
                     {item.pinned
-                        ? <Pin size={15} color={theme.primary} fill={theme.primary} />
-                        : <ListIcon size={18} color={theme.textDim} />
+                        ? <Pin size={18} color={theme.primary} fill={theme.primary} />
+                        : <ListIcon size={20} color={theme.textDim} />
                     }
                 </View>
                 <View style={{ flex: 1 }}>
@@ -247,7 +247,7 @@ export default function HomeScreen({ navigation }) {
                             <View style={styles.listTagsRow}>
                                 {resolvedTags.map(tag => (
                                     <View key={tag.id} style={[styles.listTagPill, { backgroundColor: tag.color + '25', borderColor: tag.color }]}>
-                                        <Text style={{ color: tag.color, fontSize: 10 }}>{tag.label}</Text>
+                                        <Text style={{ color: tag.color, fontSize: 11, fontWeight: '600' }}>{tag.label}</Text>
                                     </View>
                                 ))}
                             </View>
@@ -255,10 +255,10 @@ export default function HomeScreen({ navigation }) {
                     </View>
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
-                    <TouchableOpacity onPress={(e) => handleOptionsPress(item, e)} style={{ padding: 5 }}>
-                        <MoreVertical size={16} color={theme.textDim} />
+                    <TouchableOpacity onPress={(e) => handleOptionsPress(item, e)} style={{ padding: 8 }}>
+                        <MoreVertical size={20} color={theme.textDim} />
                     </TouchableOpacity>
-                    <Text style={{ color: theme.textDim, fontSize: 10, marginRight: 5, opacity: 0.7 }}>
+                    <Text style={{ color: theme.textDim, fontSize: 11, marginRight: 8, opacity: 0.8 }}>
                         {timeAgo(item.updatedAt || item.createdAt)}
                     </Text>
                 </View>
@@ -373,7 +373,7 @@ export default function HomeScreen({ navigation }) {
                     key={viewMode}
                     data={filteredNotes}
                     keyExtractor={(item) => item.id.toString()}
-                    numColumns={viewMode === 'grid' ? 3 : 1}
+                    numColumns={viewMode === 'grid' ? 2 : 1}
                     columnWrapperStyle={viewMode === 'grid' ? styles.columnWrapper : null}
                     contentContainerStyle={styles.listContent}
                     ListHeaderComponent={ListHeader}
@@ -387,9 +387,16 @@ export default function HomeScreen({ navigation }) {
                         />
                     }
                     ListEmptyComponent={
-                        <Text style={[styles.emptyText, { color: theme.textDim }]}>
-                            {searchQuery || activeTag ? 'Sin resultados' : 'No hay notas aún'}
-                        </Text>
+                        <View style={{ alignItems: 'center', marginTop: 60, paddingHorizontal: 30 }}>
+                            <Text style={[styles.emptyText, { color: theme.text, fontWeight: '600', marginTop: 0 }]}>
+                                {searchQuery || activeTag ? 'Sin resultados' : 'Aún no hay notas'}
+                            </Text>
+                            <Text style={[styles.emptyText, { color: theme.textDim, fontSize: 14, marginTop: 8 }]}>
+                                {searchQuery || activeTag
+                                    ? 'Prueba con otra búsqueda o quita los filtros'
+                                    : 'Toca el botón + para crear tu primera nota'}
+                            </Text>
+                        </View>
                     }
                 />
             )}
@@ -397,8 +404,9 @@ export default function HomeScreen({ navigation }) {
             <TouchableOpacity
                 style={[styles.fab, { backgroundColor: theme.primary }]}
                 onPress={() => navigation.navigate('Detail', { note: null })}
+                activeOpacity={0.85}
             >
-                <Plus color="#fff" size={30} />
+                <Plus color="#fff" size={32} strokeWidth={2.5} />
             </TouchableOpacity>
 
             <MainMenu
@@ -450,61 +458,61 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         marginBottom: 10,
     },
-    promptText: { flex: 1, fontSize: 13, fontStyle: 'italic' },
-    searchRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 },
+    promptText: { flex: 1, fontSize: 14, fontStyle: 'italic', lineHeight: 19 },
+    searchRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
     searchBar: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
-        borderRadius: 12,
+        borderRadius: 14,
         borderWidth: 1,
-        paddingHorizontal: 12,
-        paddingVertical: 8,
+        paddingHorizontal: 14,
+        paddingVertical: 11,
     },
-    searchInput: { flex: 1, fontSize: 14, padding: 0 },
+    searchInput: { flex: 1, fontSize: 16, padding: 0 },
     sortBtn: {
         flexDirection: 'row',
         alignItems: 'center',
-        borderRadius: 12,
+        borderRadius: 14,
         borderWidth: 1,
-        paddingHorizontal: 10,
-        paddingVertical: 8,
-        gap: 4,
+        paddingHorizontal: 12,
+        paddingVertical: 11,
+        gap: 5,
     },
-    sortLabel: { fontSize: 11, fontWeight: '600' },
-    tagFilterScroll: { marginBottom: 4 },
-    tagFilterContent: { paddingRight: 10, gap: 6 },
+    sortLabel: { fontSize: 13, fontWeight: '600' },
+    tagFilterScroll: { marginBottom: 6 },
+    tagFilterContent: { paddingRight: 10, gap: 7 },
     filterChip: {
         flexDirection: 'row',
         alignItems: 'center',
-        borderRadius: 20,
+        borderRadius: 22,
         borderWidth: 1,
-        paddingHorizontal: 10,
-        paddingVertical: 5,
+        paddingHorizontal: 14,
+        paddingVertical: 8,
     },
-    filterDot: { width: 6, height: 6, borderRadius: 3, marginRight: 5 },
-    filterChipText: { fontSize: 12, fontWeight: '600' },
-    resultsCount: { fontSize: 11, marginTop: 4, marginLeft: 2 },
+    filterDot: { width: 7, height: 7, borderRadius: 4, marginRight: 6 },
+    filterChipText: { fontSize: 13, fontWeight: '600' },
+    resultsCount: { fontSize: 12, marginTop: 6, marginLeft: 2 },
     listItem: {
-        flexDirection: 'row', alignItems: 'center', padding: 12,
-        borderBottomWidth: 1, marginBottom: 2,
+        flexDirection: 'row', alignItems: 'center', padding: 14,
+        borderBottomWidth: 1, marginBottom: 3, borderRadius: 10,
     },
-    iconBox: { marginRight: 12, opacity: 0.8 },
-    listTitle: { fontWeight: 'bold', fontSize: 14 },
-    listMeta: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 4, marginTop: 2 },
-    listPreview: { fontSize: 12 },
-    listTagsRow: { flexDirection: 'row', gap: 4 },
+    iconBox: { marginRight: 14, opacity: 0.85 },
+    listTitle: { fontWeight: 'bold', fontSize: 16 },
+    listMeta: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 5, marginTop: 4 },
+    listPreview: { fontSize: 13 },
+    listTagsRow: { flexDirection: 'row', gap: 5 },
     listTagPill: {
-        borderRadius: 6,
+        borderRadius: 7,
         borderWidth: 1,
-        paddingHorizontal: 5,
-        paddingVertical: 1,
+        paddingHorizontal: 7,
+        paddingVertical: 2,
     },
-    emptyText: { textAlign: 'center', marginTop: 40, fontSize: 14 },
+    emptyText: { textAlign: 'center', marginTop: 60, fontSize: 16, lineHeight: 22 },
     fab: {
-        position: 'absolute', bottom: 30, right: 30, width: 60, height: 60,
-        borderRadius: 30, justifyContent: 'center', alignItems: 'center',
-        elevation: 5, shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3, shadowRadius: 4.65,
+        position: 'absolute', bottom: 30, right: 30, width: 64, height: 64,
+        borderRadius: 32, justifyContent: 'center', alignItems: 'center',
+        elevation: 6, shadowColor: '#000', shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.35, shadowRadius: 5,
     },
 });

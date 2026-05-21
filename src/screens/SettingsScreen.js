@@ -40,7 +40,7 @@ export default function SettingsScreen() {
     const OptionRow = ({ icon: Icon, title, value, onValueChange, type = 'switch', subLabel, rightElement }) => (
         <View style={[styles.row, { borderBottomColor: theme.card }]}>
             <View style={styles.rowLeft}>
-                <Icon size={22} color={theme.primary} style={{ marginRight: 15 }} />
+                <Icon size={24} color={theme.primary} style={{ marginRight: 16 }} />
                 <View>
                     <Text style={[styles.label, { color: theme.text }]}>{title}</Text>
                     {subLabel && <Text style={[styles.subLabel, { color: theme.textDim }]}>{subLabel}</Text>}
@@ -167,22 +167,21 @@ export default function SettingsScreen() {
 
 const styles = StyleSheet.create({
     container: { flex: 1, padding: 20 },
-    sectionTitle: { fontSize: 13, fontWeight: 'bold', marginTop: 20, marginBottom: 10, textTransform: 'uppercase' },
+    sectionTitle: { fontSize: 13, fontWeight: 'bold', marginTop: 24, marginBottom: 12, textTransform: 'uppercase', letterSpacing: 0.8 },
     row: {
         flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-        paddingVertical: 15, borderBottomWidth: 1
+        paddingVertical: 18, borderBottomWidth: 1
     },
     rowLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
-    label: { fontSize: 16 },
-    subLabel: { fontSize: 12 },
-    colorRow: { paddingVertical: 15, borderBottomWidth: 1 },
-    colorCircle: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center', marginHorizontal: 5 },
-    selectedColorCircle: { borderWidth: 2, borderColor: 'white' },
-    // Modal styles
+    label: { fontSize: 17, fontWeight: '500' },
+    subLabel: { fontSize: 13, marginTop: 2 },
+    colorRow: { paddingVertical: 18, borderBottomWidth: 1 },
+    colorCircle: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center', marginHorizontal: 5 },
+    selectedColorCircle: { borderWidth: 2.5, borderColor: 'white' },
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
-    modalContent: { width: '80%', borderRadius: 15, padding: 20, elevation: 5 },
-    modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 15, textAlign: 'center' },
-    langOption: { flexDirection: 'row', justifyContent: 'space-between', padding: 15, borderRadius: 8, marginBottom: 5 },
-    langText: { fontSize: 16 },
-    closeBtn: { marginTop: 15, padding: 12, borderRadius: 8, alignItems: 'center' }
+    modalContent: { width: '85%', borderRadius: 16, padding: 22, elevation: 5 },
+    modalTitle: { fontSize: 19, fontWeight: 'bold', marginBottom: 18, textAlign: 'center' },
+    langOption: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, borderRadius: 10, marginBottom: 5 },
+    langText: { fontSize: 17 },
+    closeBtn: { marginTop: 18, padding: 14, borderRadius: 10, alignItems: 'center' }
 });

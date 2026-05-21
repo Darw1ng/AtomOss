@@ -6,7 +6,7 @@ import { PREDEFINED_TAGS, NOTE_TINTS } from '../constants/tags';
 import { timeAgo } from '../utils/timeAgo';
 
 const screenWidth = Dimensions.get('window').width;
-const cardWidth = (screenWidth / 3) - 14;
+const cardWidth = (screenWidth / 2) - 14;
 
 export default function NoteCard({ title, content, tags = [], pinned = false, color = null, updatedAt, createdAt, onPress, onLongPress }) {
     const { theme, mode } = useTheme();
@@ -31,10 +31,10 @@ export default function NoteCard({ title, content, tags = [], pinned = false, co
                 <Text style={[styles.title, { color: theme.primary }]} numberOfLines={1}>
                     {title || 'Vacío'}
                 </Text>
-                {pinned && <Pin size={10} color={theme.primary} fill={theme.primary} />}
+                {pinned && <Pin size={14} color={theme.primary} fill={theme.primary} />}
             </View>
 
-            <Text style={[styles.content, { color: theme.textDim }]} numberOfLines={4}>
+            <Text style={[styles.content, { color: theme.textDim }]} numberOfLines={6}>
                 {content || ''}
             </Text>
 
@@ -60,49 +60,53 @@ const styles = StyleSheet.create({
     card: {
         width: cardWidth,
         height: cardWidth,
-        borderRadius: 12,
-        padding: 10,
-        margin: 4,
+        borderRadius: 16,
+        padding: 14,
+        margin: 5,
         borderWidth: 1,
         overflow: 'hidden',
-        elevation: 2,
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.08,
+        shadowRadius: 3,
     },
     headerRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'flex-start',
-        marginBottom: 4,
+        marginBottom: 8,
     },
     title: {
-        fontSize: 13,
+        fontSize: 16,
         fontWeight: 'bold',
         flex: 1,
-        marginRight: 4,
+        marginRight: 6,
     },
     content: {
-        fontSize: 11,
-        lineHeight: 14,
+        fontSize: 13,
+        lineHeight: 18,
         flex: 1,
     },
     footer: {
-        marginTop: 4,
+        marginTop: 8,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
     },
     tagsRow: {
         flexDirection: 'row',
-        gap: 4,
+        gap: 5,
     },
     timestamp: {
-        fontSize: 9,
-        opacity: 0.7,
+        fontSize: 11,
+        opacity: 0.75,
     },
     tagDot: {
-        width: 7,
-        height: 7,
-        borderRadius: 4,
-        opacity: 0.9,
+        width: 9,
+        height: 9,
+        borderRadius: 5,
+        opacity: 0.95,
     },
     cornerDeco: {
         position: 'absolute',

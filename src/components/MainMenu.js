@@ -7,9 +7,9 @@ import {
 import { useTheme } from '../context/ThemeContext';
 
 const MenuItem = ({ icon: Icon, label, onPress, badge, theme }) => (
-    <TouchableOpacity style={styles.menuItem} onPress={onPress}>
+    <TouchableOpacity style={styles.menuItem} onPress={onPress} activeOpacity={0.6}>
         <View style={styles.menuItemLeft}>
-            <View style={styles.menuIconContainer}><Icon size={20} color={theme.primary} /></View>
+            <View style={styles.menuIconContainer}><Icon size={22} color={theme.primary} /></View>
             <Text style={[styles.menuItemText, { color: theme.text }]}>{label}</Text>
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -18,7 +18,7 @@ const MenuItem = ({ icon: Icon, label, onPress, badge, theme }) => (
                     <Text style={styles.badgeText}>{badge}</Text>
                 </View>
             )}
-            <ChevronRight size={16} color={theme.textDim} />
+            <ChevronRight size={18} color={theme.textDim} />
         </View>
     </TouchableOpacity>
 );
@@ -84,8 +84,8 @@ const styles = StyleSheet.create({
         paddingRight: 10,
     },
     menuContainer: {
-        width: 250,
-        borderRadius: 12,
+        width: 270,
+        borderRadius: 14,
         borderWidth: 1,
         elevation: 10,
         overflow: 'hidden',
@@ -95,17 +95,17 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: 15,
+        padding: 18,
         borderBottomWidth: 1,
         backgroundColor: 'rgba(0,0,0,0.2)',
     },
     menuTitle: {
         fontWeight: 'bold',
-        fontSize: 16,
+        fontSize: 17,
     },
     menuIcon: {
-        width: 24,
-        height: 24,
+        width: 26,
+        height: 26,
         marginRight: 10,
         borderRadius: 5,
     },
@@ -113,20 +113,21 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingVertical: 12,
-        paddingHorizontal: 15,
+        paddingVertical: 15,
+        paddingHorizontal: 18,
     },
     menuItemLeft: {
         flexDirection: 'row',
         alignItems: 'center',
     },
     menuIconContainer: {
-        width: 30,
+        width: 32,
         alignItems: 'center',
-        marginRight: 10,
+        marginRight: 12,
     },
     menuItemText: {
-        fontSize: 14,
+        fontSize: 16,
+        fontWeight: '500',
     },
     divider: {
         height: 1,

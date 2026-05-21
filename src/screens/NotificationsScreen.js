@@ -189,8 +189,8 @@ export default function NotificationsScreen() {
 const styles = StyleSheet.create({
     container: { flex: 1 },
     header: { padding: 20, borderBottomWidth: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    headerTitle: { fontSize: 18, fontWeight: 'bold' },
-    markAllText: { fontSize: 13, fontWeight: '600' },
+    headerTitle: { fontSize: 19, fontWeight: 'bold' },
+    markAllText: { fontSize: 14, fontWeight: '600' },
     item: {
         marginHorizontal: 15,
         marginTop: 10,
@@ -212,8 +212,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginRight: 15
     },
-    title: { fontSize: 14, marginBottom: 4 },
-    time: { fontSize: 12 },
+    title: { fontSize: 15, marginBottom: 4 },
+    time: { fontSize: 13 },
     dot: {
         width: 10,
         height: 10,
@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(0,0,0,0.02)' // Sutil diferencia de fondo
     },
     description: {
-        fontSize: 13,
-        lineHeight: 18
+        fontSize: 14,
+        lineHeight: 20
     }
 });
